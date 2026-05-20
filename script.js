@@ -26,8 +26,21 @@ document.addEventListener("DOMContentLoaded", () => {
     let isDarkMode = true;
     let baselineSavesCount = 0;
 
-    // Trigger initial search on load
-    fetchLiveTVMazeData("");
+    // Trigger complete randomization engine sequence immediately on load
+    triggerFullContentRandomization();
+
+    // ---- Master Content Randomizer Engine ----
+    function triggerFullContentRandomization() {
+        // High-yield seed array ensures diverse results across both API endpoints
+        const showSeeds = ["black", "dark", "world", "love", "dead", "star", "secret", "last", "true", "game", "house", "night", "city", "blood"];
+        const actorSeeds = ["john", "mary", "smith", "david", "james", "alex", "chris", "emma", "lee", "paul", "sarah", "tom", "rachel"];
+        
+        const selectionPool = (currentMode === "shows") ? showSeeds : actorSeeds;
+        const completelyRandomTerm = selectionPool[Math.floor(Math.random() * selectionPool.length)];
+        
+        if (searchInput) searchInput.value = ""; // Keeps search field blank for raw browsing aesthetics
+        fetchLiveTVMazeData(completelyRandomTerm);
+    }
 
     // ---- Asynchronous Endpoint Query Engine ----
     async function fetchLiveTVMazeData(queryValue) {
@@ -48,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         id: `show-${showData.id}`,
                         name: showData.name,
                         summary: showData.summary ? showData.summary.replace(/<[^>]*>/g, '') : "No synopsis details recorded.",
+                        // Standard generic movie poster placeholder
                         img: showData.image ? showData.image.medium : "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=500",
                         extraInfo: showData.genres?.length ? `Genres: ${showData.genres.join(', ')}` : 'General Entertainment',
                         metaBadge: showData.rating?.average ? `⭐ ${showData.rating.average}/10` : 'No rating recorded'
@@ -58,7 +72,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         id: `actor-${actorData.id}`,
                         name: actorData.name,
                         summary: actorData.birthday ? `Born: ${actorData.birthday}` : "Professional artist profile database record.",
-                        img: actorData.image ? actorData.image.medium : `https://robohash.org/${encodeURIComponent(actorData.name)}?set=set4`,
+                        // FIXED: Replaced red cat illustrations with a sleek cinematic vector profile placeholder
+                        img: actorData.image ? actorData.image.medium : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500",
                         extraInfo: actorData.country ? `Origin: ${actorData.country.name}` : 'International Artist',
                         metaBadge: 'Artist Profile'
                     };
@@ -164,29 +179,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---- Global Controls Event Listeners ----
     searchButton?.addEventListener("click", () => fetchLiveTVMazeData(searchInput.value));
-    searchInput?.addEventListener("input", () => fetchLiveTVMazeData(searchInput.value));
+    searchInput?.addEventListener("input", () => {
+        if (searchInput.value.trim() !== "") {
+            fetchLiveTVMazeData(searchInput.value);
+        } else {
+            triggerFullContentRandomization();
+        }
+    });
 
     showModeBtn?.addEventListener("click", () => {
         currentMode = "shows";
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
-        if (searchInput) { searchInput.placeholder = "Search live shows..."; searchInput.value = ""; }
-        fetchLiveTVMazeData("");
+        if (searchInput) searchInput.placeholder = "Search live shows...";
+        triggerFullContentRandomization();
     });
 
     actorModeBtn?.addEventListener("click", () => {
         currentMode = "actors";
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
-        if (searchInput) { searchInput.placeholder = "Search live actors..."; searchInput.value = ""; }
-        fetchLiveTVMazeData("");
+        if (searchInput) searchInput.placeholder = "Search live actors...";
+        triggerFullContentRandomization();
     });
 
     shuffleBtn?.addEventListener("click", () => {
-        const alphabet = "abcdefghijklmnoprstvw";
-        const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
-        if (searchInput) searchInput.value = randomLetter;
-        fetchLiveTVMazeData(randomLetter);
+        triggerFullContentRandomization();
     });
 
     themeToggleBtn?.addEventListener("click", () => {
