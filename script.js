@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Run randomized feed generation protocol immediately on entry
     triggerTrueRandomFeed();
 
-    // ---- TRUE RANDOMIZATION ENGINE (Bypasses keyword pooling) ----
+    // ---- DYNAMIC DISCOVERY ENGINE (Matches TVMaze Homepage Style) ----
     async function triggerTrueRandomFeed() {
         if (resultsGrid) {
             resultsGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-12">Generating unpredictable content mix...</div>`;
@@ -37,57 +37,74 @@ document.addEventListener("DOMContentLoaded", () => {
         if (searchInput) searchInput.value = ""; 
         apiDataResults = [];
 
-        let maxIdLimit = (currentMode === "shows") ? 60000 : 50000;
-        let targetedBatchSize = 9; // Number of unique items to pull into the feed layout
-        let lookupPromises = [];
+        if (currentMode === "shows") {
+            // Fetch live ongoing broadcast schedule data to capture popular variations
+            const scheduleUrl = "https://api.tvmaze.com/schedule";
+            try {
+                const response = await fetch(scheduleUrl);
+                const rawSchedule = await response.json();
+                
+                // Extract base show nodes and strip duplicates
+                const uniqueShowsMap = new Map();
+                rawSchedule.forEach(entry => {
+                    if (entry.show && !uniqueShowsMap.has(entry.show.id)) {
+                        uniqueShowsMap.set(entry.show.id, entry.show);
+                    }
+                });
 
-        // Compile an array of random, distinct numerical database keys
-        for (let i = 0; i < targetedBatchSize; i++) {
-            let completelyRandomId = Math.floor(Math.random() * maxIdLimit) + 1;
-            let endpointSegment = (currentMode === "shows") ? "shows" : "people";
-            let directItemUrl = `https://api.tvmaze.com/${endpointSegment}/${completelyRandomId}`;
-            
-            lookupPromises.push(
-                fetch(directItemUrl)
-                    .then(res => res.ok ? res.json() : null)
-                    .catch(() => null)
-            );
-        }
+                let showPool = Array.from(uniqueShowsMap.values());
+                // Sort array randomly to keep updates fresh
+                showPool.sort(() => 05 - Math.random());
+                
+                apiDataResults = showPool.slice(0, 9).map(show => ({
+                    id: `show-${show.id}`,
+                    name: show.name,
+                    summary: show.summary ? show.summary.replace(/<[^>]*>/g, '') : "No synopsis summary text on file.",
+                    img: show.image ? show.image.medium : `https://picsum.photos/seed/show-${show.id}/400/600`,
+                    extraInfo: show.genres?.length ? `Genres: ${show.genres.join(', ')}` : 'General Broadcast Entertainment',
+                    metaBadge: show.rating?.average ? `⭐ ${show.rating.average}/10` : 'No rating recorded',
+                    externalLink: show.url || "https://www.tvmaze.com"
+                }));
 
-        const resolvedRawItems = await Promise.all(lookupPromises);
-        
-        // Filter out dead links/empty records and shape valid profile objects
-        apiDataResults = resolvedRawItems.filter(item => item !== null).map(item => {
-            if (currentMode === "shows") {
-                return {
-                    id: `show-${item.id}`,
-                    name: item.name,
-                    summary: item.summary ? item.summary.replace(/<[^>]*>/g, '') : "No synopsis summary text on file.",
-                    // DYNAMIC FALLBACK: Uses unique ID to pull a distinct movie card aesthetic if poster is missing
-                    img: item.image ? item.image.medium : `https://picsum.photos/seed/show-${item.id}/400/600`,
-                    extraInfo: item.genres?.length ? `Genres: ${item.genres.join(', ')}` : 'General Broadcast Entertainment',
-                    metaBadge: item.rating?.average ? `⭐ ${item.rating.average}/10` : 'No rating recorded',
-                    externalLink: item.url || "https://www.tvmaze.com"
-                };
-            } else {
-                return {
-                    id: `actor-${item.id}`,
-                    name: item.name,
-                    summary: item.birthday ? `Born: ${item.birthday}` : "Professional artist profile database record.",
-                    // DYNAMIC FALLBACK: Generates a completely unique, elegant geometric portrait seed per actor ID!
-                    img: item.image ? item.image.medium : `https://picsum.photos/seed/actor-${item.id}/400/600`,
-                    extraInfo: item.country ? `Origin: ${item.country.name}` : 'International Field Artist',
-                    metaBadge: 'Artist Profile',
-                    externalLink: item.url || "https://www.tvmaze.com"
-                };
+                renderDisplayGridFeed();
+            } catch (err) {
+                console.error("Error building schedule pool:", err);
+                fetchLiveTVMazeData("a");
             }
-        });
-
-        // Fallback protection in case all generated random IDs draw blank responses
-        if (apiDataResults.length === 0) {
-            fetchLiveTVMazeData("a"); 
         } else {
-            renderDisplayGridFeed();
+            // Fall back to distinct database index lookup promises for actors to avoid text match grouping
+            let maxIdLimit = 50000;
+            let targetedBatchSize = 9;
+            let lookupPromises = [];
+
+            for (let i = 0; i < targetedBatchSize; i++) {
+                let completelyRandomId = Math.floor(Math.random() * maxIdLimit) + 1;
+                let directItemUrl = `https://api.tvmaze.com/people/${completelyRandomId}`;
+                
+                lookupPromises.push(
+                    fetch(directItemUrl)
+                        .then(res => res.ok ? res.json() : null)
+                        .catch(() => null)
+                );
+            }
+
+            const resolvedRawItems = await Promise.all(lookupPromises);
+            
+            apiDataResults = resolvedRawItems.filter(item => item !== null).map(item => ({
+                id: `actor-${item.id}`,
+                name: item.name,
+                summary: item.birthday ? `Born: ${item.birthday}` : "Professional artist profile database record.",
+                img: item.image ? item.image.medium : `https://picsum.photos/seed/actor-${item.id}/400/600`,
+                extraInfo: item.country ? `Origin: ${item.country.name}` : 'International Field Artist',
+                metaBadge: 'Artist Profile',
+                externalLink: item.url || "https://www.tvmaze.com"
+            }));
+
+            if (apiDataResults.length === 0) {
+                fetchLiveTVMazeData("a"); 
+            } else {
+                renderDisplayGridFeed();
+            }
         }
     }
 
