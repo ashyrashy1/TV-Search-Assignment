@@ -1,12 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // ---- Core DOM Node Mappings ----
+    // ---- DOM Node Mappings ----
     const searchInput = document.getElementById("search-input");
     const searchButton = document.getElementById("search-button");
     const resultsGrid = document.getElementById("results-grid");
     const showModeBtn = document.getElementById("show-mode-btn");
     const actorModeBtn = document.getElementById("actor-mode-btn");
-    
-    // ---- Linked Accessibility & UI Nodes [Max Marks Integration] ----
     const shuffleBtn = document.getElementById("shuffle-btn");
     const themeToggleBtn = document.getElementById("theme-toggle-btn");
     const bodyTheme = document.getElementById("body-theme");
@@ -19,16 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeModalBtn = document.getElementById("close-modal-btn");
     const watchlistCount = document.getElementById("watchlist-count");
 
-    // ---- Reactive Application State ----
+    // ---- Reactive State Configuration ----
     let currentMode = "shows";      
     let apiDataResults = [];        
     let isDarkMode = true;
     let baselineSavesCount = 0;
 
-    // Immediately trigger a search on initial load to avoid empty states
+    // Trigger initial data load
     fetchLiveTVMazeData("");
 
-    // ---- Asynchronous Endpoint Query Engine [Step 1, 2 & 3 Compliance] ----
+    // ---- Asynchronous Endpoint Query Engine ----
     async function fetchLiveTVMazeData(queryValue) {
         const queryCleaned = queryValue.trim();
         let endpoint = (currentMode === "shows") ? "shows" : "people";
@@ -40,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(completeURL);
             const jsonResults = await response.json();
 
-            // Map incoming API data arrays into uniform data objects
             apiDataResults = jsonResults.map(item => {
                 if (currentMode === "shows") {
                     const showData = item.show;
@@ -75,20 +72,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---- Responsive Data Grid Renderer [RWD & Accessibility Matrix] ----
+    // ---- Responsive Data Grid Renderer ----
     function renderDisplayGridFeed() {
         if (!resultsGrid) return;
         resultsGrid.innerHTML = "";
 
         if (apiDataResults.length === 0) {
-            resultsGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-12">No matching entries found for your criteria.</div>`;
+            resultsGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-12">No matching entries found.</div>`;
             return;
         }
 
         apiDataResults.forEach((item) => {
             const layoutCard = document.createElement("div");
             
-            // Dynamic theme class assignment ensures dark/light contrast modes work beautifully
             layoutCard.className = isDarkMode 
                 ? "bg-slate-800 border border-slate-700/50 rounded-2xl overflow-hidden p-5 flex flex-col justify-between shadow-lg hover:border-indigo-500/50 transition-all duration-300 cursor-pointer group"
                 : "bg-white border border-slate-200 rounded-2xl overflow-hidden p-5 flex flex-col justify-between shadow-md hover:border-indigo-500/50 transition-all duration-300 cursor-pointer group";
@@ -107,12 +103,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 </button>
             `;
 
-            // Click interaction 1: Opens the deep-dive popup modal
+            // Open popup interaction
             layoutCard.querySelector(".card-modal-trigger").addEventListener("click", () => openDetailModalOverlay(item));
             
-            // Click interaction 2: Increments the watchlist badge count up top
+            // Watchlist update interaction
             layoutCard.querySelector(".save-action-btn").addEventListener("click", (e) => {
-                e.stopPropagation(); // Prevents clicking the button from also firing the modal
+                e.stopPropagation(); 
                 baselineSavesCount++;
                 if (watchlistCount) watchlistCount.textContent = baselineSavesCount;
             });
@@ -121,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---- Interactive Modal Popups [Advanced UX Feature] ----
+    // ---- Fixed Modal Toggle Controllers ----
     function openDetailModalOverlay(item) {
         if (!modalBodyContent || !detailModal) return;
         modalBodyContent.innerHTML = `
@@ -134,25 +130,43 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             </div>
         `;
-        detailModal.classList.remove("hidden", "opacity-0");
+        // Reveal layers cleanly
+        detailModal.classList.remove("hidden", "opacity-0", "pointer-events-none");
         detailModal.classList.add("flex");
-        setTimeout(() => modalContainer?.classList.remove("scale-95"), 10);
+        setTimeout(() => {
+            detailModal.classList.remove("opacity-0");
+            modalContainer?.classList.remove("scale-95");
+        }, 10);
     }
 
-    closeModalBtn?.addEventListener("click", () => {
-        detailModal?.classList.add("opacity-0");
+    function closeDetailModalOverlay() {
+        if (!detailModal) return;
+        detailModal.classList.add("opacity-0", "pointer-events-none");
         modalContainer?.classList.add("scale-95");
         setTimeout(() => {
-            detailModal?.classList.remove("flex");
-            detailModal?.classList.add("hidden");
-        }, 200);
+            detailModal.classList.remove("flex");
+            detailModal.classList.add("hidden");
+        }, 300);
+    }
+
+    // Close on button click
+    closeModalBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeDetailModalOverlay();
     });
 
-    // ---- Global Event Listeners ----
+    // Close on dark outer background backdrop click
+    detailModal?.addEventListener("click", (e) => {
+        if (e.target === detailModal) {
+            closeDetailModalOverlay();
+        }
+    });
+
+    // ---- Global Controls Event Listeners ----
     searchButton?.addEventListener("click", () => fetchLiveTVMazeData(searchInput.value));
     searchInput?.addEventListener("input", () => fetchLiveTVMazeData(searchInput.value));
 
-    // Endpoint Filter Toggle Operations
     showModeBtn?.addEventListener("click", () => {
         currentMode = "shows";
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
@@ -169,7 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
         fetchLiveTVMazeData("");
     });
 
-    // 🎲 Extra Discovery Feature: Random Collection Shuffle Tool
     shuffleBtn?.addEventListener("click", () => {
         const alphabet = "abcdefghijklmnoprstvw";
         const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
@@ -177,7 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
         fetchLiveTVMazeData(randomLetter);
     });
 
-    // ☀️/🌙 Contrast Adjuster Engine [Accessibility 15 Marks Compliance]
     themeToggleBtn?.addEventListener("click", () => {
         isDarkMode = !isDarkMode;
         if (isDarkMode) {
