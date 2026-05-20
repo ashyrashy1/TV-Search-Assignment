@@ -1,12 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
     // ---- Core DOM Node Mappings ----
-    const searchInput = document.getElementById("search-input");
-    const searchButton = document.getElementById("search-button");
     const resultsGrid = document.getElementById("results-grid");
     const showModeBtn = document.getElementById("show-mode-btn");
     const actorModeBtn = document.getElementById("actor-mode-btn");
     
-    // ---- Accessibility & UI Nodes [Max Marks Integration] ----
+    // ---- Accessibility & UI Nodes ----
     const shuffleBtn = document.getElementById("shuffle-btn");
     const themeToggleBtn = document.getElementById("theme-toggle-btn");
     const bodyTheme = document.getElementById("body-theme");
@@ -20,28 +18,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const backdropClose = document.getElementById("modal-backdrop-close");
     const watchlistCount = document.getElementById("watchlist-count");
 
-    // ---- Reactive Application State ----
+    // ---- Reactive Application State Engine ----
     let currentMode = "shows";      
     let apiDataResults = [];        
     let isDarkMode = true;
     let baselineSavesCount = 0;
 
-    // Immediately trigger an initial search on load to prevent a blank landing state
-    fetchLiveTVMazeData("");
+    // Immediately fetch initial seed feed on entry load
+    fetchLiveTVMazeData("t");
 
-    // ---- Asynchronous Endpoint Query Engine [Step 1, 2 & 3 Compliance] ----
-    async function fetchLiveTVMazeData(queryValue) {
-        const queryCleaned = queryValue.trim();
+    // ---- Asynchronous Endpoint Query Engine [TVMaze Mapping Channel] ----
+    async function fetchLiveTVMazeData(termKey) {
         let endpoint = (currentMode === "shows") ? "shows" : "people";
-        let finalTerm = queryCleaned || "a"; 
-        
-        const completeURL = `https://api.tvmaze.com/search/${endpoint}?q=${encodeURIComponent(finalTerm)}`;
+        const completeURL = `https://api.tvmaze.com/search/${endpoint}?q=${encodeURIComponent(termKey)}`; [cite: 5, 7]
 
         try {
             const response = await fetch(completeURL);
             const jsonResults = await response.json();
 
-            // Map incoming API data arrays into uniform data objects
+            // Transform raw nested response objects uniformly
             apiDataResults = jsonResults.map(item => {
                 if (currentMode === "shows") {
                     const showData = item.show;
@@ -76,20 +71,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---- Responsive Data Grid Renderer [RWD & Accessibility Matrix] ----
+    // ---- Responsive Data Grid Renderer ----
     function renderDisplayGridFeed() {
         if (!resultsGrid) return;
         resultsGrid.innerHTML = "";
 
         if (apiDataResults.length === 0) {
-            resultsGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-12">No matching entries found for your criteria.</div>`;
+            resultsGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-12">No matching entries found.</div>`;
             return;
         }
 
         apiDataResults.forEach((item) => {
             const layoutCard = document.createElement("div");
             
-            // Dynamic theme class assignment ensures dark/light contrast modes work beautifully
             layoutCard.className = isDarkMode 
                 ? "bg-slate-800 border border-slate-700/50 rounded-2xl overflow-hidden p-5 flex flex-col justify-between shadow-lg hover:border-indigo-500/50 transition-all duration-300 cursor-pointer group"
                 : "bg-white border border-slate-200 rounded-2xl overflow-hidden p-5 flex flex-col justify-between shadow-md hover:border-indigo-500/50 transition-all duration-300 cursor-pointer group";
@@ -108,12 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 </button>
             `;
 
-            // Click interaction 1: Opens the deep-dive popup modal
             layoutCard.querySelector(".card-modal-trigger").addEventListener("click", () => openDetailModalOverlay(item));
             
-            // Click interaction 2: Increments the watchlist badge count up top
             layoutCard.querySelector(".save-action-btn").addEventListener("click", (e) => {
-                e.stopPropagation(); // Prevents clicking the button from also firing the modal
+                e.stopPropagation(); 
                 baselineSavesCount++;
                 if (watchlistCount) watchlistCount.textContent = baselineSavesCount;
             });
@@ -122,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---- High Usability Modal Toggle Controllers [Fixed Clicking Faults] ----
+    // ---- Overlay Pop-up Control Systems ----
     function openDetailModalOverlay(item) {
         if (!modalBodyContent || !detailModal) return;
         
@@ -137,11 +129,9 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
         
-        // Clear layout hidden flags to enable proper rendering paths
         detailModal.classList.remove("hidden", "pointer-events-none");
         detailModal.classList.add("flex");
         
-        // Brief timeout ensures smooth rendering transitions occur without dropping animation frames
         setTimeout(() => {
             detailModal.classList.remove("opacity-0");
             modalContainer?.classList.remove("scale-95");
@@ -150,59 +140,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function closeDetailModalOverlay() {
         if (!detailModal) return;
-        
         detailModal.classList.add("opacity-0", "pointer-events-none");
         modalContainer?.classList.add("scale-95");
         
-        // Wait for CSS animations to complete fully before changing structural display rules
         setTimeout(() => {
             detailModal.classList.remove("flex");
             detailModal.classList.add("hidden");
         }, 300);
     }
 
-    // Explicit 'X' close button click trigger
     closeModalBtn?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         closeDetailModalOverlay();
     });
 
-    // Dark outer background backdrop click trigger [Fixes Window Screen Deadlocks]
     backdropClose?.addEventListener("click", () => {
         closeDetailModalOverlay();
     });
 
-    // ---- Global Interactive Event Controls ----
-    searchButton?.addEventListener("click", () => fetchLiveTVMazeData(searchInput.value));
-    searchInput?.addEventListener("input", () => fetchLiveTVMazeData(searchInput.value));
-
-    // Endpoint Filter Toggle Operations
+    // ---- Navigation Interaction Triggers ----
     showModeBtn?.addEventListener("click", () => {
         currentMode = "shows";
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
-        if (searchInput) { searchInput.placeholder = "Search live shows..."; searchInput.value = ""; }
-        fetchLiveTVMazeData("");
+        fetchLiveTVMazeData("a");
     });
 
     actorModeBtn?.addEventListener("click", () => {
         currentMode = "actors";
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
-        if (searchInput) { searchInput.placeholder = "Search live actors..."; searchInput.value = ""; }
-        fetchLiveTVMazeData("");
+        fetchLiveTVMazeData("m");
     });
 
-    // 🎲 Extra Discovery Feature: Random Collection Shuffle Tool
     shuffleBtn?.addEventListener("click", () => {
-        const alphabet = "abcdefghijklmnoprstvw";
-        const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
-        if (searchInput) searchInput.value = randomLetter;
-        fetchLiveTVMazeData(randomLetter);
+        const alphabets = "abcdefghijklmnoprstvw";
+        const selectedLetter = alphabets[Math.floor(Math.random() * alphabets.length)];
+        fetchLiveTVMazeData(selectedLetter);
     });
 
-    // ☀️/🌙 Contrast Adjuster Engine [Accessibility 15 Marks Compliance]
     themeToggleBtn?.addEventListener("click", () => {
         isDarkMode = !isDarkMode;
         if (isDarkMode) {
