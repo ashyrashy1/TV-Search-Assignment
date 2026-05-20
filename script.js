@@ -26,22 +26,72 @@ document.addEventListener("DOMContentLoaded", () => {
     let isDarkMode = true;
     let baselineSavesCount = 0;
 
-    // Run baseline content seeding protocol immediately on entry
-    triggerAutomatedContentFeed();
+    // Run randomized feed generation protocol immediately on entry
+    triggerTrueRandomFeed();
 
-    // ---- Stream Seeding Routine ----
-    function triggerAutomatedContentFeed() {
-        const showSeeds = ["black", "dark", "world", "love", "dead", "star", "secret", "last", "true", "game", "house", "night", "city", "blood"];
-        const actorSeeds = ["john", "mary", "smith", "david", "james", "alex", "chris", "emma", "lee", "paul", "sarah", "tom", "rachel"];
-        
-        const baselinePool = (currentMode === "shows") ? showSeeds : actorSeeds;
-        const randomizedChoice = baselinePool[Math.floor(Math.random() * baselinePool.length)];
-        
+    // ---- TRUE RANDOMIZATION ENGINE (Bypasses keyword pooling) ----
+    async function triggerTrueRandomFeed() {
+        if (resultsGrid) {
+            resultsGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-12">Generating unpredictable content mix...</div>`;
+        }
         if (searchInput) searchInput.value = ""; 
-        fetchLiveTVMazeData(randomizedChoice);
+        apiDataResults = [];
+
+        let maxIdLimit = (currentMode === "shows") ? 60000 : 50000;
+        let targetedBatchSize = 9; // Number of unique items to pull into the feed layout
+        let lookupPromises = [];
+
+        // Compile an array of random, distinct numerical database keys
+        for (let i = 0; i < targetedBatchSize; i++) {
+            let completelyRandomId = Math.floor(Math.random() * maxIdLimit) + 1;
+            let endpointSegment = (currentMode === "shows") ? "shows" : "people";
+            let directItemUrl = `https://api.tvmaze.com/${endpointSegment}/${completelyRandomId}`;
+            
+            lookupPromises.push(
+                fetch(directItemUrl)
+                    .then(res => res.ok ? res.json() : null)
+                    .catch(() => null)
+            );
+        }
+
+        const resolvedRawItems = await Promise.all(lookupPromises);
+        
+        // Filter out dead links/empty records and shape valid profile objects
+        apiDataResults = resolvedRawItems.filter(item => item !== null).map(item => {
+            if (currentMode === "shows") {
+                return {
+                    id: `show-${item.id}`,
+                    name: item.name,
+                    summary: item.summary ? item.summary.replace(/<[^>]*>/g, '') : "No synopsis summary text on file.",
+                    // DYNAMIC FALLBACK: Uses unique ID to pull a distinct movie card aesthetic if poster is missing
+                    img: item.image ? item.image.medium : `https://picsum.photos/seed/show-${item.id}/400/600`,
+                    extraInfo: item.genres?.length ? `Genres: ${item.genres.join(', ')}` : 'General Broadcast Entertainment',
+                    metaBadge: item.rating?.average ? `⭐ ${item.rating.average}/10` : 'No rating recorded',
+                    externalLink: item.url || "https://www.tvmaze.com"
+                };
+            } else {
+                return {
+                    id: `actor-${item.id}`,
+                    name: item.name,
+                    summary: item.birthday ? `Born: ${item.birthday}` : "Professional artist profile database record.",
+                    // DYNAMIC FALLBACK: Generates a completely unique, elegant geometric portrait seed per actor ID!
+                    img: item.image ? item.image.medium : `https://picsum.photos/seed/actor-${item.id}/400/600`,
+                    extraInfo: item.country ? `Origin: ${item.country.name}` : 'International Field Artist',
+                    metaBadge: 'Artist Profile',
+                    externalLink: item.url || "https://www.tvmaze.com"
+                };
+            }
+        });
+
+        // Fallback protection in case all generated random IDs draw blank responses
+        if (apiDataResults.length === 0) {
+            fetchLiveTVMazeData("a"); 
+        } else {
+            renderDisplayGridFeed();
+        }
     }
 
-    // ---- Asynchronous Live Fetch Engine ----
+    // ---- Asynchronous Search Input Query Engine ----
     async function fetchLiveTVMazeData(queryValue) {
         const queryCleaned = queryValue.trim();
         let endpoint = (currentMode === "shows") ? "shows" : "people";
@@ -60,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         id: `show-${showData.id}`,
                         name: showData.name,
                         summary: showData.summary ? showData.summary.replace(/<[^>]*>/g, '') : "No summary text on file.",
-                        img: showData.image ? showData.image.medium : "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=500",
+                        img: showData.image ? showData.image.medium : `https://picsum.photos/seed/show-${showData.id}/400/600`,
                         extraInfo: showData.genres?.length ? `Genres: ${showData.genres.join(', ')}` : 'General Broadcast Entertainment',
                         metaBadge: showData.rating?.average ? `⭐ ${showData.rating.average}/10` : 'No rating recorded',
                         externalLink: showData.url || "https://www.tvmaze.com"
@@ -71,8 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         id: `actor-${actorData.id}`,
                         name: actorData.name,
                         summary: actorData.birthday ? `Born: ${actorData.birthday}` : "Professional artist profile database record.",
-                        // FIXED: Removed the robohash link and replaced it with a sleek, premium Unsplash portrait placeholder
-                        img: actorData.image ? actorData.image.medium : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500",
+                        img: actorData.image ? actorData.image.medium : `https://picsum.photos/seed/actor-${actorData.id}/400/600`,
                         extraInfo: actorData.country ? `Origin: ${actorData.country.name}` : 'International Field Artist',
                         metaBadge: 'Artist Profile',
                         externalLink: actorData.url || "https://www.tvmaze.com"
@@ -137,7 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function openDetailModalOverlay(item) {
         if (!modalBodyContent || !detailModal) return;
         
-        // FIXED: Integrated a modern action button that takes users to the target source URL in a new tab
         modalBodyContent.innerHTML = `
             <div class="flex flex-col sm:flex-row gap-6">
                 <img src="${item.img}" class="w-full sm:w-44 aspect-[2/3] object-cover rounded-2xl shadow-xl border border-slate-700/30">
@@ -163,6 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 20);
     }
 
+    // ---- Modal Teardown Routines ----
     function closeDetailModalOverlay() {
         if (!detailModal) return;
         detailModal.classList.add("opacity-0", "pointer-events-none");
@@ -189,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (searchInput.value.trim() !== "") {
             fetchLiveTVMazeData(searchInput.value);
         } else {
-            triggerAutomatedContentFeed();
+            triggerTrueRandomFeed();
         }
     });
 
@@ -198,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
         if (searchInput) searchInput.placeholder = "Search live shows...";
-        triggerAutomatedContentFeed();
+        triggerTrueRandomFeed();
     });
 
     actorModeBtn?.addEventListener("click", () => {
@@ -206,11 +255,11 @@ document.addEventListener("DOMContentLoaded", () => {
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
         if (searchInput) searchInput.placeholder = "Search live actors...";
-        triggerAutomatedContentFeed();
+        triggerTrueRandomFeed();
     });
 
     shuffleBtn?.addEventListener("click", () => {
-        triggerAutomatedContentFeed();
+        triggerTrueRandomFeed();
     });
 
     themeToggleBtn?.addEventListener("click", () => {
