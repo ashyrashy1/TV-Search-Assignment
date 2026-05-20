@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     // ---- Core DOM Node Mappings ----
+    const searchInput = document.getElementById("search-input");
+    const searchButton = document.getElementById("search-button");
     const resultsGrid = document.getElementById("results-grid");
     const showModeBtn = document.getElementById("show-mode-btn");
     const actorModeBtn = document.getElementById("actor-mode-btn");
@@ -18,25 +20,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const backdropClose = document.getElementById("modal-backdrop-close");
     const watchlistCount = document.getElementById("watchlist-count");
 
-    // ---- Reactive Application State Engine ----
+    // ---- Reactive Application State ----
     let currentMode = "shows";      
     let apiDataResults = [];        
     let isDarkMode = true;
     let baselineSavesCount = 0;
 
-    // Immediately fetch initial seed feed on entry load
-    fetchLiveTVMazeData("t");
+    // Trigger initial search on load
+    fetchLiveTVMazeData("");
 
-    // ---- Asynchronous Endpoint Query Engine [TVMaze Mapping Channel] ----
-    async function fetchLiveTVMazeData(termKey) {
+    // ---- Asynchronous Endpoint Query Engine ----
+    async function fetchLiveTVMazeData(queryValue) {
+        const queryCleaned = queryValue.trim();
         let endpoint = (currentMode === "shows") ? "shows" : "people";
-        const completeURL = `https://api.tvmaze.com/search/${endpoint}?q=${encodeURIComponent(termKey)}`; [cite: 5, 7]
+        let finalTerm = queryCleaned || "a"; 
+        
+        const completeURL = `https://api.tvmaze.com/search/${endpoint}?q=${encodeURIComponent(finalTerm)}`;
 
         try {
             const response = await fetch(completeURL);
             const jsonResults = await response.json();
 
-            // Transform raw nested response objects uniformly
             apiDataResults = jsonResults.map(item => {
                 if (currentMode === "shows") {
                     const showData = item.show;
@@ -66,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.error("TVMaze connection layout fault:", error);
             if (resultsGrid) {
-                resultsGrid.innerHTML = `<div class="col-span-full text-center text-rose-400 py-12">Failed to secure data feed. Please verify server connection.</div>`;
+                resultsGrid.innerHTML = `<div class="col-span-full text-center text-rose-400 py-12">Failed to secure data feed.</div>`;
             }
         }
     }
@@ -114,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---- Overlay Pop-up Control Systems ----
+    // ---- Modal Overlay Functions ----
     function openDetailModalOverlay(item) {
         if (!modalBodyContent || !detailModal) return;
         
@@ -158,25 +162,31 @@ document.addEventListener("DOMContentLoaded", () => {
         closeDetailModalOverlay();
     });
 
-    // ---- Navigation Interaction Triggers ----
+    // ---- Global Controls Event Listeners ----
+    searchButton?.addEventListener("click", () => fetchLiveTVMazeData(searchInput.value));
+    searchInput?.addEventListener("input", () => fetchLiveTVMazeData(searchInput.value));
+
     showModeBtn?.addEventListener("click", () => {
         currentMode = "shows";
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
-        fetchLiveTVMazeData("a");
+        if (searchInput) { searchInput.placeholder = "Search live shows..."; searchInput.value = ""; }
+        fetchLiveTVMazeData("");
     });
 
     actorModeBtn?.addEventListener("click", () => {
         currentMode = "actors";
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
-        fetchLiveTVMazeData("m");
+        if (searchInput) { searchInput.placeholder = "Search live actors..."; searchInput.value = ""; }
+        fetchLiveTVMazeData("");
     });
 
     shuffleBtn?.addEventListener("click", () => {
-        const alphabets = "abcdefghijklmnoprstvw";
-        const selectedLetter = alphabets[Math.floor(Math.random() * alphabets.length)];
-        fetchLiveTVMazeData(selectedLetter);
+        const alphabet = "abcdefghijklmnoprstvw";
+        const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
+        if (searchInput) searchInput.value = randomLetter;
+        fetchLiveTVMazeData(randomLetter);
     });
 
     themeToggleBtn?.addEventListener("click", () => {
