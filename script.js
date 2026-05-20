@@ -53,8 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 let showPool = Array.from(uniqueShowsMap.values());
-                // Sort array randomly to keep updates fresh
-                showPool.sort(() => 05 - Math.random());
+                
+                // FIXED: Changed '05' to '0.5' to allow the math engine to properly generate negative/positive offsets
+                showPool.sort(() => 0.5 - Math.random());
                 
                 apiDataResults = showPool.slice(0, 9).map(show => ({
                     id: `show-${show.id}`,
