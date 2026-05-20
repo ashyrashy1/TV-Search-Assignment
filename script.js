@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // ---- Core DOM Node Mappings ----
+    // ---- Core DOM Mappings ----
     const searchInput = document.getElementById("search-input");
     const searchButton = document.getElementById("search-button");
     const resultsGrid = document.getElementById("results-grid");
     const showModeBtn = document.getElementById("show-mode-btn");
     const actorModeBtn = document.getElementById("actor-mode-btn");
     
-    // ---- Accessibility & UI Nodes ----
+    // ---- UI Component Mappings ----
     const shuffleBtn = document.getElementById("shuffle-btn");
     const themeToggleBtn = document.getElementById("theme-toggle-btn");
     const bodyTheme = document.getElementById("body-theme");
@@ -20,29 +20,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const backdropClose = document.getElementById("modal-backdrop-close");
     const watchlistCount = document.getElementById("watchlist-count");
 
-    // ---- Reactive Application State ----
+    // ---- Reactive State Engine Values ----
     let currentMode = "shows";      
     let apiDataResults = [];        
     let isDarkMode = true;
     let baselineSavesCount = 0;
 
-    // Trigger complete randomization engine sequence immediately on load
-    triggerFullContentRandomization();
+    // Run baseline content seeding protocol immediately on entry
+    triggerAutomatedContentFeed();
 
-    // ---- Master Content Randomizer Engine ----
-    function triggerFullContentRandomization() {
-        // High-yield seed array ensures diverse results across both API endpoints
+    // ---- Stream Seeding Routine ----
+    function triggerAutomatedContentFeed() {
         const showSeeds = ["black", "dark", "world", "love", "dead", "star", "secret", "last", "true", "game", "house", "night", "city", "blood"];
         const actorSeeds = ["john", "mary", "smith", "david", "james", "alex", "chris", "emma", "lee", "paul", "sarah", "tom", "rachel"];
         
-        const selectionPool = (currentMode === "shows") ? showSeeds : actorSeeds;
-        const completelyRandomTerm = selectionPool[Math.floor(Math.random() * selectionPool.length)];
+        const baselinePool = (currentMode === "shows") ? showSeeds : actorSeeds;
+        const randomizedChoice = baselinePool[Math.floor(Math.random() * baselinePool.length)];
         
-        if (searchInput) searchInput.value = ""; // Keeps search field blank for raw browsing aesthetics
-        fetchLiveTVMazeData(completelyRandomTerm);
+        if (searchInput) searchInput.value = ""; 
+        fetchLiveTVMazeData(randomizedChoice);
     }
 
-    // ---- Asynchronous Endpoint Query Engine ----
+    // ---- Asynchronous Live Fetch Engine ----
     async function fetchLiveTVMazeData(queryValue) {
         const queryCleaned = queryValue.trim();
         let endpoint = (currentMode === "shows") ? "shows" : "people";
@@ -60,11 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     return {
                         id: `show-${showData.id}`,
                         name: showData.name,
-                        summary: showData.summary ? showData.summary.replace(/<[^>]*>/g, '') : "No synopsis details recorded.",
-                        // Standard generic movie poster placeholder
+                        summary: showData.summary ? showData.summary.replace(/<[^>]*>/g, '') : "No summary text on file.",
                         img: showData.image ? showData.image.medium : "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=500",
-                        extraInfo: showData.genres?.length ? `Genres: ${showData.genres.join(', ')}` : 'General Entertainment',
-                        metaBadge: showData.rating?.average ? `⭐ ${showData.rating.average}/10` : 'No rating recorded'
+                        extraInfo: showData.genres?.length ? `Genres: ${showData.genres.join(', ')}` : 'General Broadcast Entertainment',
+                        metaBadge: showData.rating?.average ? `⭐ ${showData.rating.average}/10` : 'No rating recorded',
+                        externalLink: showData.url || "https://www.tvmaze.com"
                     };
                 } else {
                     const actorData = item.person;
@@ -72,10 +71,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         id: `actor-${actorData.id}`,
                         name: actorData.name,
                         summary: actorData.birthday ? `Born: ${actorData.birthday}` : "Professional artist profile database record.",
-                        // FIXED: Replaced red cat illustrations with a sleek cinematic vector profile placeholder
+                        // FIXED: Removed the robohash link and replaced it with a sleek, premium Unsplash portrait placeholder
                         img: actorData.image ? actorData.image.medium : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500",
-                        extraInfo: actorData.country ? `Origin: ${actorData.country.name}` : 'International Artist',
-                        metaBadge: 'Artist Profile'
+                        extraInfo: actorData.country ? `Origin: ${actorData.country.name}` : 'International Field Artist',
+                        metaBadge: 'Artist Profile',
+                        externalLink: actorData.url || "https://www.tvmaze.com"
                     };
                 }
             });
@@ -83,20 +83,20 @@ document.addEventListener("DOMContentLoaded", () => {
             renderDisplayGridFeed();
 
         } catch (error) {
-            console.error("TVMaze connection layout fault:", error);
+            console.error("TVMaze layout pipeline synchronization error:", error);
             if (resultsGrid) {
                 resultsGrid.innerHTML = `<div class="col-span-full text-center text-rose-400 py-12">Failed to secure data feed.</div>`;
             }
         }
     }
 
-    // ---- Responsive Data Grid Renderer ----
+    // ---- Grid DOM Dynamic Injector ----
     function renderDisplayGridFeed() {
         if (!resultsGrid) return;
         resultsGrid.innerHTML = "";
 
         if (apiDataResults.length === 0) {
-            resultsGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-12">No matching entries found.</div>`;
+            resultsGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-12">No matching records uncovered.</div>`;
             return;
         }
 
@@ -133,17 +133,23 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---- Modal Overlay Functions ----
+    // ---- Pop-up Dialog Window Handler Engine ----
     function openDetailModalOverlay(item) {
         if (!modalBodyContent || !detailModal) return;
         
+        // FIXED: Integrated a modern action button that takes users to the target source URL in a new tab
         modalBodyContent.innerHTML = `
             <div class="flex flex-col sm:flex-row gap-6">
                 <img src="${item.img}" class="w-full sm:w-44 aspect-[2/3] object-cover rounded-2xl shadow-xl border border-slate-700/30">
-                <div class="flex flex-col justify-center">
-                    <h2 class="text-2xl font-black mb-1 text-white">${item.name}</h2>
-                    <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-3 block">${item.extraInfo}</span>
-                    <p class="text-sm leading-relaxed text-slate-300 max-h-48 overflow-y-auto pr-2">${item.summary}</p>
+                <div class="flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-2xl font-black mb-1 text-white">${item.name}</h2>
+                        <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-3 block">${item.extraInfo}</span>
+                        <p class="text-sm leading-relaxed text-slate-300 max-h-40 overflow-y-auto pr-2 mb-4">${item.summary}</p>
+                    </div>
+                    <a href="${item.externalLink}" target="_blank" rel="noopener noreferrer" class="inline-flex w-full sm:w-auto items-center justify-center text-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition-all gap-1 active:scale-95">
+                        View Full Source Record ↗
+                    </a>
                 </div>
             </div>
         `;
@@ -177,13 +183,13 @@ document.addEventListener("DOMContentLoaded", () => {
         closeDetailModalOverlay();
     });
 
-    // ---- Global Controls Event Listeners ----
+    // ---- Interactive Event Listeners ----
     searchButton?.addEventListener("click", () => fetchLiveTVMazeData(searchInput.value));
     searchInput?.addEventListener("input", () => {
         if (searchInput.value.trim() !== "") {
             fetchLiveTVMazeData(searchInput.value);
         } else {
-            triggerFullContentRandomization();
+            triggerAutomatedContentFeed();
         }
     });
 
@@ -192,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
         if (searchInput) searchInput.placeholder = "Search live shows...";
-        triggerFullContentRandomization();
+        triggerAutomatedContentFeed();
     });
 
     actorModeBtn?.addEventListener("click", () => {
@@ -200,11 +206,11 @@ document.addEventListener("DOMContentLoaded", () => {
         actorModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-md";
         showModeBtn.className = "flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
         if (searchInput) searchInput.placeholder = "Search live actors...";
-        triggerFullContentRandomization();
+        triggerAutomatedContentFeed();
     });
 
     shuffleBtn?.addEventListener("click", () => {
-        triggerFullContentRandomization();
+        triggerAutomatedContentFeed();
     });
 
     themeToggleBtn?.addEventListener("click", () => {
