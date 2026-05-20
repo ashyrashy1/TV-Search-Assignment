@@ -38,8 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
         apiDataResults = [];
 
         if (currentMode === "shows") {
-            // Fetch live ongoing broadcast schedule data to capture popular variations
-            const scheduleUrl = "https://api.tvmaze.com/schedule";
+            // FIX: Added a unique timestamp query parameter to force the browser to bypass its cache layout on every click
+            const cacheBuster = new Date().getTime();
+            const scheduleUrl = `https://api.tvmaze.com/schedule?t=${cacheBuster}`;
+            
             try {
                 const response = await fetch(scheduleUrl);
                 const rawSchedule = await response.json();
@@ -54,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 let showPool = Array.from(uniqueShowsMap.values());
                 
-                // FIXED: Changed '05' to '0.5' to allow the math engine to properly generate negative/positive offsets
+                // FIX: Repaired the decimal format from '05' to '0.5' so the sorting array genuinely randomizes item indexes
                 showPool.sort(() => 0.5 - Math.random());
                 
                 apiDataResults = showPool.slice(0, 9).map(show => ({
