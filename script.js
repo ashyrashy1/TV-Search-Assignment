@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById('search-input');
     const shuffleBtn = document.getElementById('shuffle-btn');
     const mustWatchToggle = document.getElementById('mustWatchToggle');
+    const modalLink = document.getElementById('modalLink');
     
     let savedItems = JSON.parse(localStorage.getItem('cinetrack_saves')) || [];
     let lastData = [], lastType = 'shows';
@@ -53,6 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (e.target.classList.contains('bookmark-btn')) return;
                 document.getElementById('modalTitle').innerText = obj.name;
                 document.getElementById('modalSummary').innerHTML = obj.summary || "No description available.";
+                
+                // Set the link properly
+                modalLink.href = obj.url || "#";
+                
                 mustWatchToggle.style.display = type === 'shows' ? 'block' : 'none';
                 mustWatchToggle.innerText = savedItem?.mustWatch ? 'Remove from Must Watch' : 'Mark as Must Watch';
                 mustWatchToggle.onclick = () => {
@@ -70,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
             card.querySelector('.bookmark-btn').onclick = (e) => {
                 e.stopPropagation();
                 if (!savedItem) {
-                    savedItems.push({ name: obj.name, mustWatch: false });
+                    savedItems.push({ name: obj.name, mustWatch: false, url: obj.url });
                     localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
                     updateListUI();
                     render(lastData, lastType);
