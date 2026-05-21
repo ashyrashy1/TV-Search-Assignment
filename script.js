@@ -2,19 +2,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const grid = document.getElementById("resultsGrid");
     const modal = document.getElementById('infoModal');
     const savedList = document.getElementById('saved-list');
+    const saveCount = document.getElementById('save-count');
+    const showBtn = document.getElementById('mode-shows');
+    const actorBtn = document.getElementById('mode-actors');
+    const searchInput = document.getElementById('search-input');
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    const mustWatchToggle = document.getElementById('mustWatchToggle');
     
-    // Load as objects: { name, mustWatch }
     let savedItems = JSON.parse(localStorage.getItem('cinetrack_saves')) || [];
+    let lastData = [], lastType = 'shows';
 
     const updateListUI = () => {
+        saveCount.innerText = `Session Saves: ${savedItems.length}`;
         savedList.innerHTML = savedItems.length === 0 ? '<li class="text-slate-500 italic">No items saved yet...</li>' : "";
         savedItems.forEach(item => {
             const li = document.createElement('li');
             li.className = "flex justify-between items-center text-indigo-400 font-bold truncate p-1";
-            li.innerHTML = `
-                <span>${item.mustWatch ? '🔥 ' : '★ '} ${item.name}</span>
-                <button class="remove-btn text-xs bg-red-900/50 px-2 py-0.5 rounded hover:bg-red-600">✕</button>
-            `;
+            li.innerHTML = `<span>${item.mustWatch ? '🔥 ' : '★ '} ${item.name}</span><button class="remove-btn text-xs bg-red-900/50 px-2 py-0.5 rounded hover:bg-red-600">✕</button>`;
             li.querySelector('.remove-btn').onclick = () => {
                 savedItems = savedItems.filter(i => i.name !== item.name);
                 localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
@@ -25,13 +29,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    let lastData = [], lastType = 'shows';
-
     const render = (data, type) => {
         lastData = data; lastType = type;
+        showBtn.className = `flex-1 py-2 rounded-lg text-sm font-bold ${type === 'shows' ? 'bg-indigo-600' : 'bg-slate-700'}`;
+        actorBtn.className = `flex-1 py-2 rounded-lg text-sm font-bold ${type === 'actors' ? 'bg-indigo-600' : 'bg-slate-700'}`;
+
         grid.innerHTML = "";
         data.slice(0, 9).forEach(item => {
             const obj = item.show || item.person;
+            if (!obj) return;
             const savedItem = savedItems.find(i => i.name === obj.name);
             const card = document.createElement("div");
             card.className = "bg-[#1e293b] p-4 rounded-2xl cursor-pointer hover:bg-slate-700 transition";
@@ -46,23 +52,12 @@ document.addEventListener("DOMContentLoaded", () => {
             card.onclick = (e) => {
                 if (e.target.classList.contains('bookmark-btn')) return;
                 document.getElementById('modalTitle').innerText = obj.name;
-                document.getElementById('modalSummary').innerHTML = obj.summary || "No description.";
-                
-                // Add "Must Watch" toggle to modal
-                const modalFooter = document.getElementById('modalLink').parentElement;
-                let toggleBtn = document.getElementById('mustWatchToggle');
-                if(!toggleBtn) {
-                    toggleBtn = document.createElement('button');
-                    toggleBtn.id = 'mustWatchToggle';
-                    toggleBtn.className = "w-full bg-orange-600 text-white py-3 rounded-lg font-bold mt-2";
-                    modalFooter.insertBefore(toggleBtn, document.getElementById('modalLink'));
-                }
-                
-                const isSaved = savedItems.find(i => i.name === obj.name);
-                toggleBtn.innerText = isSaved?.mustWatch ? 'Remove from Must Watch' : 'Mark as Must Watch';
-                toggleBtn.onclick = () => {
-                    if (isSaved) {
-                        isSaved.mustWatch = !isSaved.mustWatch;
+                document.getElementById('modalSummary').innerHTML = obj.summary || "No description available.";
+                mustWatchToggle.style.display = type === 'shows' ? 'block' : 'none';
+                mustWatchToggle.innerText = savedItem?.mustWatch ? 'Remove from Must Watch' : 'Mark as Must Watch';
+                mustWatchToggle.onclick = () => {
+                    if (savedItem) {
+                        savedItem.mustWatch = !savedItem.mustWatch;
                         localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
                         updateListUI();
                         modal.classList.add('hidden');
@@ -86,13 +81,20 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     async function fetchData(url, type) {
-        const res = await fetch(url.replace("http:", "https:"));
-        render(await res.json(), type);
+        try {
+            const res = await fetch(url.replace("http:", "https:"));
+            let data = await res.json();
+            if (type === 'shows' && url.includes('schedule')) data.sort(() => Math.random() - 0.5);
+            render(data, type);
+        } catch (e) { console.error(e); }
     }
 
+    document.getElementById('theme-toggle').onclick = () => document.body.classList.toggle('light-mode');
     document.getElementById('closeModal').onclick = () => modal.classList.add('hidden');
-    document.getElementById('mode-shows').onclick = () => fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
-    document.getElementById('mode-actors').onclick = () => fetchData("https://api.tvmaze.com/search/people?q=a", 'actors');
+    searchInput.onkeypress = (e) => { if (e.key === 'Enter') fetchData(`https://api.tvmaze.com/search/shows?q=${e.target.value}`, 'shows'); };
+    shuffleBtn.onclick = () => fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
+    showBtn.onclick = () => fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
+    actorBtn.onclick = () => fetchData("https://api.tvmaze.com/search/people?q=a", 'actors');
     
     updateListUI();
     fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
