@@ -6,36 +6,55 @@
     <title>CINETRACK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { transition: background-color 0.3s, color 0.3s; }
+        body { transition: background-color 0.3s ease, color 0.3s ease; }
         .light-mode { background-color: #f8fafc !important; color: #1e293b !important; }
-        .light-mode .bg-slate-800 { background-color: #e2e8f0 !important; }
-        .light-mode .text-slate-100 { color: #1e293b !important; }
+        .light-mode .bg-\[\#1e293b\] { background-color: #e2e8f0 !important; }
+        .light-mode .text-white { color: #1e293b !important; }
         .light-mode .text-slate-400 { color: #64748b !important; }
     </style>
 </head>
-<body class="bg-slate-900 min-h-screen text-slate-100 p-8">
-    <header class="max-w-7xl mx-auto flex justify-between mb-8">
+<body class="bg-[#0f172a] text-white min-h-screen p-4 md:p-8">
+
+    <header class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 class="text-3xl font-black">CINETRACK</h1>
-        <button id="theme-toggle" class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold">LIGHT MODE</button>
+        <div class="flex items-center gap-6">
+            <span class="text-sm font-bold">♥ Session Saves: <span id="save-count">0</span></span>
+            <button id="theme-toggle" class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold uppercase cursor-pointer">Toggle Theme</button>
+        </div>
     </header>
 
-    <main class="max-w-7xl mx-auto grid grid-cols-4 gap-8">
-        <aside class="col-span-1 bg-slate-800 p-6 rounded-2xl h-fit">
-            <h2 class="text-xs font-bold uppercase mb-4 text-slate-400">Search Controls</h2>
-            <div class="flex gap-2 mb-4">
-                <button id="show-mode-btn" class="flex-1 bg-indigo-600 py-2 rounded-lg text-sm font-bold">Shows</button>
-                <button id="actor-mode-btn" class="flex-1 bg-slate-700 py-2 rounded-lg text-sm font-bold">Actors</button>
+    <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+        <aside class="space-y-6">
+            <div class="bg-[#1e293b] p-6 rounded-2xl">
+                <h2 class="text-xs font-bold uppercase mb-4 text-slate-400"> Selection Controls</h2>
+                <div class="flex gap-2 mb-4">
+                    <button id="mode-shows" class="flex-1 bg-indigo-600 py-2 rounded-lg text-sm font-bold">Shows</button>
+                    <button id="mode-actors" class="flex-1 bg-slate-700 py-2 rounded-lg text-sm font-bold">Actors</button>
+                </div>
+                <button id="shuffle-btn" class="w-full bg-slate-700 py-3 rounded-lg font-bold text-sm">🎲 Shuffle Feed</button>
             </div>
-            <button id="shuffle-btn" class="w-full bg-slate-700 py-3 rounded-lg mb-4 font-bold text-sm">SHUFFLE FEED</button>
-            <div class="text-center pt-6 border-t border-slate-700">
-                <a href="https://www.tvmaze.com/api" target="_blank" class="text-indigo-400 text-xs font-bold">TVMAZE API LINKED</a>
+            <div class="bg-[#1e293b] p-6 rounded-2xl">
+                <h2 class="text-xs font-bold uppercase mb-4 text-slate-400">Your Saved List</h2>
+                <ul id="saved-list" class="text-sm space-y-2">
+                    <li class="text-slate-500 italic">No items saved yet...</li>
+                </ul>
             </div>
         </aside>
 
-        <section class="col-span-3">
-            <div id="resultsGrid" class="grid grid-cols-3 gap-6"></div>
+        <section class="md:col-span-3">
+            <input type="text" id="search-input" placeholder="Search shows (press Enter)..." class="w-full bg-[#1e293b] p-4 rounded-xl mb-6 text-sm border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-600">
+            <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </section>
     </main>
+
+    <div id="infoModal" class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 p-8 rounded-2xl max-w-lg w-full relative">
+            <button id="closeModal" class="absolute top-4 right-4 text-white font-bold text-lg">✕</button>
+            <h2 id="modalTitle" class="text-2xl font-black mb-4"></h2>
+            <p id="modalSummary" class="text-sm text-slate-300 mb-6"></p>
+            <a id="modalLink" href="#" target="_blank" class="block w-full bg-indigo-600 text-center py-3 rounded-lg font-bold">View on TVMaze</a>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
