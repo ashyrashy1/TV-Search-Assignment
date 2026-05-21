@@ -10,7 +10,6 @@
         .light-mode { background-color: #f8fafc !important; color: #1e293b !important; }
         .light-mode .bg-\[\#1e293b\] { background-color: #e2e8f0 !important; }
         .light-mode .text-white { color: #1e293b !important; }
-        .light-mode .text-slate-400 { color: #64748b !important; }
     </style>
 </head>
 <body class="bg-[#0f172a] text-white min-h-screen p-4 md:p-8">
@@ -18,7 +17,6 @@
     <header class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 class="text-3xl font-black">CINETRACK</h1>
         <div class="flex items-center gap-6">
-            <span class="text-sm font-bold">♥ Session Saves: <span id="save-count">0</span></span>
             <button id="theme-toggle" class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold uppercase cursor-pointer">Toggle Theme</button>
         </div>
     </header>
@@ -26,12 +24,11 @@
     <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <aside class="space-y-6">
             <div class="bg-[#1e293b] p-6 rounded-2xl">
-                <h2 class="text-xs font-bold uppercase mb-4 text-slate-400"> Selection Controls</h2>
+                <h2 class="text-xs font-bold uppercase mb-4 text-slate-400">Controls</h2>
                 <div class="flex gap-2 mb-4">
                     <button id="mode-shows" class="flex-1 bg-indigo-600 py-2 rounded-lg text-sm font-bold">Shows</button>
                     <button id="mode-actors" class="flex-1 bg-slate-700 py-2 rounded-lg text-sm font-bold">Actors</button>
                 </div>
-                <button id="shuffle-btn" class="w-full bg-slate-700 py-3 rounded-lg font-bold text-sm">🎲 Shuffle Feed</button>
             </div>
             <div class="bg-[#1e293b] p-6 rounded-2xl">
                 <h2 class="text-xs font-bold uppercase mb-4 text-slate-400">Your Saved List</h2>
