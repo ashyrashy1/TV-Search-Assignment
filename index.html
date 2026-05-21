@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CINETRACK - Discovery Engine</title>
+    <title>TV Search & Discovery Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none !important; }
@@ -13,7 +13,7 @@
 
     <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <span class="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">CINETRACK 🎬</span>
+            <span class="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">TV-SEARCH 🎬</span>
             <div class="text-sm font-medium bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
                 Watchlist: <span id="watchlist-count" class="text-indigo-400 font-bold">0</span>
             </div>
@@ -40,6 +40,16 @@
                     <button id="shuffle-btn" class="w-full bg-slate-800 hover:bg-slate-700/80 text-indigo-400 font-semibold border border-slate-700/60 rounded-xl py-3 text-sm flex items-center justify-center gap-2 transition-all active:scale-95">
                         🎲 Shuffle Feed
                     </button>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 text-center">
+                        <p class="text-[11px] text-slate-500 tracking-wide">
+                            Data streams integrated via 
+                            <a href="https://www.tvmaze.com/api" target="_blank" class="text-indigo-400 hover:underline hover:text-indigo-300 font-medium transition-colors">
+                                TVMaze API 🌐
+                            </a>
+                        </p>
+                    </div>
+
                 </div>
             </section>
 
@@ -47,8 +57,8 @@
                 <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[300px]">
                     
                     <div id="loading-spinner" class="col-span-full flex flex-col items-center justify-center py-20 text-center w-full">
-                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-700 border-t-indigo-500"></div>
-                        <p class="text-xs font-semibold uppercase tracking-widest text-indigo-400 mt-4 animate-pulse">Syncing Network Asset Feeds...</p>
+                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-700 border-t-indigo-500 mx-auto"></div>
+                        <p class="text-xs font-semibold uppercase tracking-widest text-indigo-400 mt-4 animate-pulse">Syncing TV Database Feeds...</p>
                     </div>
 
                 </div>

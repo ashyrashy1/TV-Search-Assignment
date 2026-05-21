@@ -15,14 +15,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentMode = "shows";
     let apiDataResults = [];
 
-    // Visual helper delay function so the spinner is visible to the human eye
+    // Visual helper delay function so the spinner is visibly traceable on screen
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-    // Hardcoded HTML spinner layout reference string
+    // Hardcoded string layout representing standard fallback loading UI states
     const spinnerHTML = `
         <div id="loading-spinner" class="col-span-full flex flex-col items-center justify-center py-20 text-center w-full">
             <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-700 border-t-indigo-500"></div>
-            <p class="text-xs font-semibold uppercase tracking-widest text-indigo-400 mt-4 animate-pulse">Syncing Network Asset Feeds...</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-indigo-400 mt-4 animate-pulse">Syncing TV Database Feeds...</p>
         </div>
     `;
 
@@ -84,13 +84,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 attachCardClickListeners();
 
             } catch (error) {
-                // If the fetch fails, leave explicit error instructions instead of going completely blank
                 console.error("Discovery error details:", error);
                 if (resultsGrid) {
                     resultsGrid.innerHTML = `
                         <div class="col-span-full text-center py-12 bg-red-950/20 border border-red-900/50 rounded-xl p-6">
                             <p class="text-red-400 font-bold mb-1">Network Error Encountered</p>
-                            <p class="text-xs text-slate-400">The application is working perfectly, but the browser was blocked from connecting to the TVMaze server. Please check your network connection or turn off ad-blockers.</p>
+                            <p class="text-xs text-slate-400">The application is working perfectly, but the browser was blocked from connecting to the TVMaze API server. Check your connection or ad-blockers.</p>
                         </div>
                     `;
                 }
@@ -234,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     <img src="${matchedData.image ? matchedData.image.medium : 'https://via.placeholder.com/210x295?text=No+Image'}" class="w-full md:w-48 rounded-xl object-cover shadow-lg">
                                     <div>
                                         <h2 class="text-2xl font-black text-white mb-2">${matchedData.name}</h2>
-                                        <p class="text-sm text-slate-300 mb-4">Actor file tracking metadata logged inside active repository nodes.</p>
+                                        <p class="text-sm text-slate-300 mb-4">Actor profile tracking metadata logged inside repository nodes.</p>
                                         <ul class="text-xs text-slate-400 space-y-1">
                                             <li><strong>Gender Specification:</strong> ${matchedData.gender || 'N/A'}</li>
                                             <li><strong>Origin Country:</strong> ${matchedData.country ? matchedData.country.name : 'N/A'}</li>
