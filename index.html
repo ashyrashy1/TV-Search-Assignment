@@ -1,80 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Search & Discovery Engine</title>
+    <title>TV Search Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none !important; }
+        /* Theme Logic */
+        .light-mode { background-color: #f8fafc; color: #1e293b; }
+        .light-mode .bg-slate-900 { background-color: #ffffff; }
+        .light-mode .bg-slate-800 { background-color: #f1f5f9; border-color: #e2e8f0; }
+        .light-mode .text-slate-100 { color: #1e293b; }
+        .light-mode .text-slate-400 { color: #64748b; }
     </style>
 </head>
-<body class="bg-slate-900 min-h-screen text-slate-100 antialiased">
+<body class="bg-slate-900 min-h-screen text-slate-100 transition-colors duration-300">
 
     <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <span class="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">TV-SEARCH 🎬</span>
-            <div class="text-sm font-medium bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
-                Watchlist: <span id="watchlist-count" class="text-indigo-400 font-bold">0</span>
-            </div>
+            <span class="text-xl font-black text-indigo-400">TV-SEARCH</span>
+            <button id="theme-toggle" class="bg-slate-800 px-4 py-1.5 rounded-full text-xs font-bold border border-slate-700">Toggle Theme</button>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            
             <section class="lg:col-span-1">
-                <div class="bg-slate-800/40 border border-slate-800 p-5 rounded-2xl shadow-xl backdrop-blur-sm sticky top-24">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Search Engine Mode</h2>
-                    
-                    <div class="bg-slate-900/60 p-1 rounded-xl flex gap-1 mb-4 border border-slate-800">
-                        <button id="show-mode-btn" class="flex-1 text-center text-sm font-medium py-2 rounded-lg bg-indigo-600 text-white transition-all shadow-sm">TV Shows</button>
-                        <button id="actor-mode-btn" class="flex-1 text-center text-sm font-medium py-2 rounded-lg text-slate-400 hover:text-slate-200 transition-colors">Actors</button>
+                <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700">
+                    <h2 class="text-xs font-bold uppercase text-slate-400 mb-3">Engine Mode</h2>
+                    <div class="bg-slate-900/60 p-1 rounded-xl flex gap-1 mb-4">
+                        <button id="show-mode-btn" class="flex-1 py-2 text-sm font-medium bg-indigo-600 rounded-lg">Shows</button>
+                        <button id="actor-mode-btn" class="flex-1 py-2 text-sm font-medium">Actors</button>
                     </div>
-
-                    <div class="mb-6">
-                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">Query Search</label>
-                        <input id="searchInput" type="text" placeholder="Type title or name..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors">
+                    <div class="mt-8 pt-4 border-t border-slate-700 text-center">
+                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Powered by</p>
+                        <a href="https://www.tvmaze.com/api" target="_blank" class="text-indigo-400 font-bold hover:underline">TVMaze API</a>
                     </div>
-
-                    <button id="shuffle-btn" class="w-full bg-slate-800 hover:bg-slate-700/80 text-indigo-400 font-semibold border border-slate-700/60 rounded-xl py-3 text-sm flex items-center justify-center gap-2 transition-all active:scale-95">
-                        🎲 Shuffle Feed
-                    </button>
-
-                    <div class="mt-6 pt-4 border-t border-slate-800/80 text-center">
-                        <p class="text-[11px] text-slate-500 tracking-wide">
-                            Data streams integrated via 
-                            <a href="https://www.tvmaze.com/api" target="_blank" class="text-indigo-400 hover:underline hover:text-indigo-300 font-medium transition-colors">
-                                TVMaze API 🌐
-                            </a>
-                        </p>
-                    </div>
-
                 </div>
             </section>
-
             <section class="lg:col-span-3">
-                <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[300px]">
-                    
-                    <div id="loading-spinner" class="col-span-full flex flex-col items-center justify-center py-20 text-center w-full">
-                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-700 border-t-indigo-500 mx-auto"></div>
-                        <p class="text-xs font-semibold uppercase tracking-widest text-indigo-400 mt-4 animate-pulse">Syncing TV Database Feeds...</p>
+                <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     </div>
-
-                </div>
             </section>
-
         </div>
     </main>
-
-    <div id="detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div id="modal-backdrop-close" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
-        <div id="modal-container" class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden relative z-10 transition-all duration-300 transform">
-            <div id="modal-body-content" class="p-6">
-                </div>
-            <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold">&times;</button>
-        </div>
-    </div>
 
     <script src="script.js"></script>
 </body>
