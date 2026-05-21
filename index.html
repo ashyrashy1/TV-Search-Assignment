@@ -6,9 +6,11 @@
     <title>CINETRACK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { transition: background-color 0.3s; }
+        body { transition: background-color 0.3s, color 0.3s; }
         .light-mode { background-color: #f8fafc !important; color: #1e293b !important; }
-        .light-mode aside { background-color: #ffffff !important; border: 1px solid #e2e8f0; }
+        .light-mode .bg-slate-800 { background-color: #e2e8f0 !important; }
+        .light-mode .text-slate-100 { color: #1e293b !important; }
+        .light-mode .text-slate-400 { color: #64748b !important; }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen text-slate-100 p-8">
@@ -25,7 +27,11 @@
                 <button id="actor-mode-btn" class="flex-1 bg-slate-700 py-2 rounded-lg text-sm font-bold">Actors</button>
             </div>
             <button id="shuffle-btn" class="w-full bg-slate-700 py-3 rounded-lg mb-4 font-bold text-sm">SHUFFLE FEED</button>
+            <div class="text-center pt-6 border-t border-slate-700">
+                <a href="https://www.tvmaze.com/api" target="_blank" class="text-indigo-400 text-xs font-bold">TVMAZE API LINKED</a>
+            </div>
         </aside>
+
         <section class="col-span-3">
             <div id="resultsGrid" class="grid grid-cols-3 gap-6"></div>
         </section>
