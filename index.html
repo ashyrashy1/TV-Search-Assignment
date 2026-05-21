@@ -10,25 +10,35 @@
         .light-mode { background-color: #f8fafc !important; color: #1e293b !important; }
         .light-mode .bg-\[\#1e293b\] { background-color: #e2e8f0 !important; }
         .light-mode .text-white { color: #1e293b !important; }
+        
+        /* Mobile-First Responsive Layout */
+        @media (max-width: 768px) {
+            main { grid-template-columns: 1fr !important; }
+            aside { order: -1; margin-bottom: 20px; }
+            #resultsGrid { grid-template-columns: 1fr !important; }
+        }
     </style>
 </head>
 <body class="bg-[#0f172a] text-white min-h-screen p-4 md:p-8">
 
     <header class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h1 class="text-3xl font-black">CINETRACK</h1>
-        <div class="flex items-center gap-6">
-            <button id="theme-toggle" class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold uppercase cursor-pointer">Toggle Theme</button>
+        <div class="flex items-center gap-4">
+            <h1 class="text-3xl font-black">CINETRACK</h1>
+            <span id="save-count" class="text-xs bg-indigo-600 px-2 py-1 rounded font-bold">Session Saves: 0</span>
         </div>
+        <button id="theme-toggle" class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold uppercase cursor-pointer">Toggle Theme</button>
     </header>
 
     <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <aside class="space-y-6">
             <div class="bg-[#1e293b] p-6 rounded-2xl">
                 <h2 class="text-xs font-bold uppercase mb-4 text-slate-400">Controls</h2>
+                <input type="text" id="search-input" placeholder="Search..." class="w-full bg-slate-900 p-2 rounded-lg mb-4 text-sm border border-slate-700 outline-none">
                 <div class="flex gap-2 mb-4">
-                    <button id="mode-shows" class="flex-1 bg-indigo-600 py-2 rounded-lg text-sm font-bold">Shows</button>
-                    <button id="mode-actors" class="flex-1 bg-slate-700 py-2 rounded-lg text-sm font-bold">Actors</button>
+                    <button id="mode-shows" class="flex-1 py-2 rounded-lg text-sm font-bold">Shows</button>
+                    <button id="mode-actors" class="flex-1 py-2 rounded-lg text-sm font-bold">Actors</button>
                 </div>
+                <button id="shuffle-btn" class="w-full bg-slate-700 py-2 rounded-lg text-sm font-bold hover:bg-slate-600">Shuffle Feed</button>
             </div>
             <div class="bg-[#1e293b] p-6 rounded-2xl">
                 <h2 class="text-xs font-bold uppercase mb-4 text-slate-400">Your Saved List</h2>
@@ -39,7 +49,6 @@
         </aside>
 
         <section class="md:col-span-3">
-            <input type="text" id="search-input" placeholder="Search shows (press Enter)..." class="w-full bg-[#1e293b] p-4 rounded-xl mb-6 text-sm border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-600">
             <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </section>
     </main>
@@ -49,7 +58,8 @@
             <button id="closeModal" class="absolute top-4 right-4 text-white font-bold text-lg">✕</button>
             <h2 id="modalTitle" class="text-2xl font-black mb-4"></h2>
             <p id="modalSummary" class="text-sm text-slate-300 mb-6"></p>
-            <a id="modalLink" href="#" target="_blank" class="block w-full bg-indigo-600 text-center py-3 rounded-lg font-bold">View on TVMaze</a>
+            <button id="mustWatchToggle" class="w-full bg-orange-600 text-white py-3 rounded-lg font-bold mb-2">Mark as Must Watch</button>
+            <a id="modalLink" href="#" target="_blank" class="block w-full bg-indigo-600 text-center py-3 rounded-lg font-bold">View Details</a>
         </div>
     </div>
     <script src="script.js"></script>
