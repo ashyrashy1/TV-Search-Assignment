@@ -3,47 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV-SEARCH Engine</title>
+    <title>CINETRACK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Global theme transitions */
-        body { transition: background-color 0.3s, color 0.3s; }
+        body { transition: background-color 0.3s; }
         .light-mode { background-color: #f8fafc !important; color: #1e293b !important; }
-        .light-mode header, .light-mode aside > div { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
-        .light-mode .card { background-color: #ffffff !important; border: 1px solid #e2e8f0 !important; }
+        .light-mode aside { background-color: #ffffff !important; border: 1px solid #e2e8f0; }
     </style>
 </head>
-<body class="bg-slate-900 min-h-screen text-slate-100">
-
-    <header class="p-6 flex justify-between items-center border-b border-slate-800 bg-slate-900">
-        <h1 class="text-2xl font-black text-indigo-400">TV-SEARCH</h1>
-        <button id="theme-toggle" class="bg-indigo-600 px-4 py-2 rounded-lg text-sm font-bold text-white">Toggle Theme</button>
+<body class="bg-slate-900 min-h-screen text-slate-100 p-8">
+    <header class="max-w-7xl mx-auto flex justify-between mb-8">
+        <h1 class="text-3xl font-black">CINETRACK</h1>
+        <button id="theme-toggle" class="bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold">LIGHT MODE</button>
     </header>
 
-    <main class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <aside class="lg:col-span-1">
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-                <h2 class="text-xs font-bold uppercase text-slate-400 mb-4">Discovery Engine</h2>
-                <button id="shuffle-btn" class="w-full bg-indigo-600 py-2 rounded-lg text-sm font-bold mb-4 hover:bg-indigo-700">🎲 Shuffle Feed</button>
-                <div class="text-center pt-6 border-t border-slate-700">
-                    <p class="text-[10px] text-slate-500 uppercase font-bold">Powered by</p>
-                    <a href="https://www.tvmaze.com/api" target="_blank" class="text-indigo-400 font-bold hover:underline">TVMaze API</a>
-                </div>
+    <main class="max-w-7xl mx-auto grid grid-cols-4 gap-8">
+        <aside class="col-span-1 bg-slate-800 p-6 rounded-2xl h-fit">
+            <h2 class="text-xs font-bold uppercase mb-4 text-slate-400">Search Controls</h2>
+            <div class="flex gap-2 mb-4">
+                <button id="show-mode-btn" class="flex-1 bg-indigo-600 py-2 rounded-lg text-sm font-bold">Shows</button>
+                <button id="actor-mode-btn" class="flex-1 bg-slate-700 py-2 rounded-lg text-sm font-bold">Actors</button>
             </div>
+            <button id="shuffle-btn" class="w-full bg-slate-700 py-3 rounded-lg mb-4 font-bold text-sm">SHUFFLE FEED</button>
         </aside>
-        
-        <section class="lg:col-span-3">
-            <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <section class="col-span-3">
+            <div id="resultsGrid" class="grid grid-cols-3 gap-6"></div>
         </section>
     </main>
-
-    <div id="modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div id="modal-content" class="bg-slate-800 p-8 rounded-2xl max-w-lg w-full relative">
-            <button id="close-modal" class="absolute top-4 right-4 text-white">✕</button>
-            <div id="modal-body"></div>
-        </div>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>
