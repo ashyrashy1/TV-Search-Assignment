@@ -1,32 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // ---- UI DOM MAPPINGS ----
     const showModeBtn = document.getElementById("show-mode-btn");
     const actorModeBtn = document.getElementById("actor-mode-btn");
     const resultsGrid = document.getElementById("resultsGrid");
     const themeToggle = document.getElementById("theme-toggle");
-    const body = document.body;
 
-    // ---- STATE ----
     let currentMode = "shows";
 
-    // ---- 1. THEME TOGGLE LOGIC ----
-    if (themeToggle) {
-        themeToggle.addEventListener("click", () => {
-            body.classList.toggle("light-mode");
-        });
-    }
+    // 1. Theme Toggle Logic
+    themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("light-mode");
+    });
 
-    // ---- 2. TVMAZE API FETCH ENGINE ----
+    // 2. Optimized Fetch Function
     async function fetchData(query = "") {
-        // Clear grid and show loading state
-        resultsGrid.innerHTML = `
-            <div class="col-span-full py-10 text-center animate-pulse">
-                <p class="text-indigo-400 font-bold">Syncing with TVMaze API...</p>
-            </div>
-        `;
-
+        resultsGrid.innerHTML = `<p class="col-span-full text-center">Loading...</p>`;
+        
+        // Switch API endpoint based on mode
+        const endpoint = currentMode === "shows" ? "shows" : "people";
         const url = query 
-            ? `https://api.tvmaze.com/search/${currentMode}?q=${query}`
+            ? `https://api.tvmaze.com/search/${endpoint}?q=${query}`
             : `https://api.tvmaze.com/schedule`;
 
         try {
@@ -34,16 +26,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
             renderResults(data);
         } catch (error) {
-            resultsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">Failed to connect to TVMaze API.</p>`;
+            resultsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">Error loading data.</p>`;
         }
     }
 
-    // ---- 3. RENDER ENGINE ----
+    // 3. Render Engine (Correctly handles Shows vs Actors)
     function renderResults(data) {
         resultsGrid.innerHTML = "";
-        
         data.forEach(item => {
-            const obj = item.show || item.person || item;
+            // Data structure from TVMaze differs for shows vs people
+            const obj = item.show || item.person;
+            if (!obj) return; 
+
             const name = obj.name || "Unknown";
             const img = obj.image?.medium || "https://via.placeholder.com/210x295?text=No+Image";
 
@@ -58,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---- 4. MODE SWITCHERS ----
+    // 4. UI Listeners
     showModeBtn.addEventListener("click", () => {
         currentMode = "shows";
         showModeBtn.classList.add("bg-indigo-600");
@@ -73,6 +67,5 @@ document.addEventListener("DOMContentLoaded", () => {
         fetchData();
     });
 
-    // Initial Load
-    fetchData();
+    fetchData(); // Initial load
 });
