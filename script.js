@@ -54,15 +54,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (e.target.classList.contains('bookmark-btn')) return;
                 document.getElementById('modalTitle').innerText = obj.name;
                 document.getElementById('modalSummary').innerHTML = obj.summary || "No description available.";
-                
-                // Set the link properly
                 modalLink.href = obj.url || "#";
                 
+                const currentSavedItem = savedItems.find(i => i.name === obj.name);
                 mustWatchToggle.style.display = type === 'shows' ? 'block' : 'none';
-                mustWatchToggle.innerText = savedItem?.mustWatch ? 'Remove from Must Watch' : 'Mark as Must Watch';
+                mustWatchToggle.innerText = currentSavedItem?.mustWatch ? 'Remove from Must Watch' : 'Mark as Must Watch';
+                
                 mustWatchToggle.onclick = () => {
-                    if (savedItem) {
-                        savedItem.mustWatch = !savedItem.mustWatch;
+                    const itemIndex = savedItems.findIndex(i => i.name === obj.name);
+                    if (itemIndex !== -1) {
+                        savedItems[itemIndex].mustWatch = !savedItems[itemIndex].mustWatch;
                         localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
                         updateListUI();
                         modal.classList.add('hidden');
