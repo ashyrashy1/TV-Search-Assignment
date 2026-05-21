@@ -3,47 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Search Engine</title>
+    <title>TV-SEARCH</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .hidden { display: none !important; }
-        /* Theme Logic */
+        body { transition: background-color 0.3s, color 0.3s; }
         .light-mode { background-color: #f8fafc; color: #1e293b; }
         .light-mode .bg-slate-900 { background-color: #ffffff; }
-        .light-mode .bg-slate-800 { background-color: #f1f5f9; border-color: #e2e8f0; }
+        .light-mode .bg-slate-800 { background-color: #f1f5f9; border: 1px solid #e2e8f0; }
         .light-mode .text-slate-100 { color: #1e293b; }
         .light-mode .text-slate-400 { color: #64748b; }
     </style>
 </head>
-<body class="bg-slate-900 min-h-screen text-slate-100 transition-colors duration-300">
+<body class="bg-slate-900 min-h-screen text-slate-100">
 
-    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <span class="text-xl font-black text-indigo-400">TV-SEARCH</span>
-            <button id="theme-toggle" class="bg-slate-800 px-4 py-1.5 rounded-full text-xs font-bold border border-slate-700">Toggle Theme</button>
-        </div>
+    <header class="p-6 flex justify-between items-center border-b border-slate-800">
+        <h1 class="text-xl font-bold">TV-SEARCH</h1>
+        <button id="theme-toggle" class="bg-slate-800 px-4 py-2 rounded-full text-xs font-bold border border-slate-700">Toggle Theme</button>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <section class="lg:col-span-1">
-                <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700">
-                    <h2 class="text-xs font-bold uppercase text-slate-400 mb-3">Engine Mode</h2>
-                    <div class="bg-slate-900/60 p-1 rounded-xl flex gap-1 mb-4">
-                        <button id="show-mode-btn" class="flex-1 py-2 text-sm font-medium bg-indigo-600 rounded-lg">Shows</button>
-                        <button id="actor-mode-btn" class="flex-1 py-2 text-sm font-medium">Actors</button>
-                    </div>
-                    <div class="mt-8 pt-4 border-t border-slate-700 text-center">
-                        <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Powered by</p>
-                        <a href="https://www.tvmaze.com/api" target="_blank" class="text-indigo-400 font-bold hover:underline">TVMaze API</a>
-                    </div>
+    <main class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <aside class="lg:col-span-1">
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+                <h2 class="text-xs font-bold uppercase text-slate-400 mb-4">Engine Mode</h2>
+                <div class="bg-slate-900/60 p-1 rounded-xl flex gap-1 mb-6">
+                    <button id="show-mode-btn" class="flex-1 py-2 text-sm font-medium bg-indigo-600 rounded-lg text-white">Shows</button>
+                    <button id="actor-mode-btn" class="flex-1 py-2 text-sm font-medium rounded-lg text-slate-400">Actors</button>
                 </div>
-            </section>
-            <section class="lg:col-span-3">
-                <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    </div>
-            </section>
-        </div>
+                <div class="text-center pt-6 border-t border-slate-700">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">Powered by</p>
+                    <a href="https://www.tvmaze.com/api" target="_blank" class="text-indigo-400 font-bold hover:underline">TVMaze API</a>
+                </div>
+            </div>
+        </aside>
+        
+        <section class="lg:col-span-3">
+            <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
     </main>
 
     <script src="script.js"></script>
