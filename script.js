@@ -1,55 +1,43 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const showModeBtn = document.getElementById("show-mode-btn");
-    const actorModeBtn = document.getElementById("actor-mode-btn");
     const resultsGrid = document.getElementById("resultsGrid");
+    const shuffleBtn = document.getElementById("shuffle-btn");
     const themeToggle = document.getElementById("theme-toggle");
-
-    let currentMode = "shows";
+    const modal = document.getElementById("modal");
 
     // Theme Switch
     themeToggle.addEventListener("click", () => document.body.classList.toggle("light-mode"));
 
     // Fetch and Render
-    async function fetchData() {
-        resultsGrid.innerHTML = `<p class="text-slate-400">Loading...</p>`;
+    async function loadFeed() {
+        resultsGrid.innerHTML = `<p>Loading shows...</p>`;
+        const res = await fetch("https://api.tvmaze.com/schedule?country=US&date=2026-05-20");
+        const data = await res.json();
+        resultsGrid.innerHTML = "";
         
-        // Use different endpoints for shows vs people
-        const url = currentMode === "shows" 
-            ? "https://api.tvmaze.com/schedule" 
-            : "https://api.tvmaze.com/search/people?q=a";
-
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-            resultsGrid.innerHTML = "";
-            
-            data.forEach(item => {
-                const obj = item.show || item.person || item;
-                const card = document.createElement("div");
-                card.className = "bg-slate-800 p-4 rounded-xl border border-slate-700";
-                card.innerHTML = `
-                    <img src="${obj.image?.medium || 'https://via.placeholder.com/210x295'}" class="w-full h-64 object-cover rounded-lg mb-4">
-                    <h3 class="font-bold">${obj.name}</h3>
-                    <p class="text-xs text-slate-400">${currentMode === 'shows' ? 'TV Show' : 'Actor'}</p>
-                `;
-                resultsGrid.appendChild(card);
-            });
-        } catch (e) { resultsGrid.innerHTML = `<p class="text-red-500">Error loading data.</p>`; }
+        data.forEach(item => {
+            const show = item.show;
+            const card = document.createElement("div");
+            card.className = "card bg-slate-800 p-4 rounded-xl border border-slate-700 cursor-pointer hover:scale-105 transition-transform";
+            card.innerHTML = `
+                <img src="${show.image?.medium || 'https://via.placeholder.com/210x295'}" class="w-full h-64 object-cover rounded-lg mb-4">
+                <h3 class="font-bold text-lg">${show.name}</h3>
+            `;
+            card.onclick = () => showModal(show);
+            resultsGrid.appendChild(card);
+        });
     }
 
-    showModeBtn.addEventListener("click", () => {
-        currentMode = "shows";
-        showModeBtn.className = "flex-1 py-2 text-sm font-medium bg-indigo-600 rounded-lg text-white";
-        actorModeBtn.className = "flex-1 py-2 text-sm font-medium rounded-lg text-slate-400";
-        fetchData();
-    });
+    function showModal(show) {
+        document.getElementById("modal-body").innerHTML = `
+            <h2 class="text-2xl font-bold mb-4">${show.name}</h2>
+            <p class="text-sm opacity-80 mb-4">${show.summary?.replace(/<[^>]*>/g, '') || 'No summary available.'}</p>
+            <p class="text-xs font-bold text-indigo-400">Rating: ${show.rating?.average || 'N/A'}</p>
+        `;
+        modal.classList.remove("hidden");
+    }
 
-    actorModeBtn.addEventListener("click", () => {
-        currentMode = "actors";
-        actorModeBtn.className = "flex-1 py-2 text-sm font-medium bg-indigo-600 rounded-lg text-white";
-        showModeBtn.className = "flex-1 py-2 text-sm font-medium rounded-lg text-slate-400";
-        fetchData();
-    });
+    document.getElementById("close-modal").onclick = () => modal.classList.add("hidden");
+    shuffleBtn.addEventListener("click", loadFeed);
 
-    fetchData();
+    loadFeed();
 });
