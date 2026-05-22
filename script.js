@@ -62,13 +62,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 mustWatchToggle.onclick = () => {
                     const itemIndex = savedItems.findIndex(i => i.name === obj.name);
-                    if (itemIndex !== -1) {
+                    if (itemIndex === -1) {
+                        // Automatically add to list if not found
+                        savedItems.push({ name: obj.name, mustWatch: true, url: obj.url });
+                    } else {
+                        // Toggle existing
                         savedItems[itemIndex].mustWatch = !savedItems[itemIndex].mustWatch;
-                        localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
-                        updateListUI();
-                        modal.classList.add('hidden');
-                        render(lastData, lastType);
                     }
+                    localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
+                    updateListUI();
+                    modal.classList.add('hidden');
+                    render(lastData, lastType);
                 };
                 modal.classList.remove('hidden');
             };
