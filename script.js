@@ -16,16 +16,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const updateListUI = () => {
         saveCount.innerText = `Session Saves: ${savedItems.length}`;
         savedList.innerHTML = savedItems.length === 0 ? '<li class="text-slate-500 italic">No items saved yet...</li>' : "";
+        
         savedItems.forEach(item => {
             const li = document.createElement('li');
             li.className = "flex justify-between items-center text-indigo-400 font-bold truncate p-1";
-            li.innerHTML = `<span>${item.mustWatch ? '🔥 ' : '★ '} ${item.name}</span><button class="remove-btn text-xs bg-red-900/50 px-2 py-0.5 rounded hover:bg-red-600">✕</button>`;
-            li.querySelector('.remove-btn').onclick = () => {
+            li.innerHTML = `<span>${item.mustWatch ? '🔥 ' : '★ '} ${item.name}</span><button class="remove-btn text-xs bg-red-900/50 px-2 py-0.5 rounded hover:bg-red-600 text-white">✕</button>`;
+            
+            // Fixed: Robust removal listener
+            li.querySelector('.remove-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
                 savedItems = savedItems.filter(i => i.name !== item.name);
                 localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
                 updateListUI();
                 render(lastData, lastType);
-            };
+            });
             savedList.appendChild(li);
         });
     };
@@ -63,10 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 mustWatchToggle.onclick = () => {
                     const itemIndex = savedItems.findIndex(i => i.name === obj.name);
                     if (itemIndex === -1) {
-                        // Automatically add to list if not found
                         savedItems.push({ name: obj.name, mustWatch: true, url: obj.url });
                     } else {
-                        // Toggle existing
                         savedItems[itemIndex].mustWatch = !savedItems[itemIndex].mustWatch;
                     }
                     localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
