@@ -14,7 +14,7 @@ A responsive web application designed for tracking television shows and discover
 
 ## Setup
 The project is hosted on GitHub Pages and can be viewed here:
-[Link to your live site]
+https://ashyrashy1.github.io/TV-Search-Assignment/
 
 ## Documentation
 This project was developed as part of a technical assignment focusing on:
