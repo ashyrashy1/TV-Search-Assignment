@@ -21,3 +21,7 @@ This project was developed as part of a technical assignment focusing on:
 - Modular, semantic HTML structure.
 - Separation of concerns between UI and application logic.
 - Asynchronous data handling with the Fetch API.
+
+
+"Known Limitations."
+The TVMaze schedule API returns a limited set of results. In some scenarios, data may appear repetitive upon repeated reloads due to API caching behavior. This was observed during testing and does not impact core functionality.
