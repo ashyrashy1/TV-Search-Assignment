@@ -14,25 +14,29 @@ document.addEventListener("DOMContentLoaded", () => {
     let lastData = [], lastType = 'shows';
 
     const updateListUI = () => {
-        saveCount.innerText = `Session Saves: ${savedItems.length}`;
-        savedList.innerHTML = savedItems.length === 0 ? '<li class="text-slate-500 italic">No items saved yet...</li>' : "";
-        
-        savedItems.forEach(item => {
-            const li = document.createElement('li');
-            li.className = "flex justify-between items-center text-indigo-400 font-bold truncate p-1";
-            li.innerHTML = `<span>${item.mustWatch ? '🔥 ' : '★ '} ${item.name}</span><button class="remove-btn text-xs bg-red-900/50 px-2 py-0.5 rounded hover:bg-red-600 text-white">✕</button>`;
-            
-            // Fixed: Robust event listener binding
-            li.querySelector('.remove-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                savedItems = savedItems.filter(i => i.name !== item.name);
-                localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
-                updateListUI();
-                render(lastData, lastType);
-            });
-            savedList.appendChild(li);
-        });
-    };
+    const list = document.getElementById('saved-list');
+    list.innerHTML = ""; // Clear existing
+
+
+    // Add this to make the remove buttons work
+window.removeItem = (index) => {
+    savedItems.splice(index, 1); // Remove from the array
+    localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems)); // Update storage
+    updateListUI(); // Refresh the sidebar
+    render(lastData, lastType); // Refresh the main grid to un-highlight the bookmark button
+};
+
+    
+    savedItems.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = "flex justify-between items-center bg-slate-800 p-2 rounded";
+        li.innerHTML = `
+            <span>${item.name}</span>
+            <button onclick="removeItem(${index})" class="text-red-500 hover:text-red-300">X</button>
+        `;
+        list.appendChild(li);
+    });
+};
 
     const render = (data, type) => {
         lastData = data; lastType = type;
@@ -92,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
+    // Note: API returns randomized schedule data. Repetition may occur due to limited US schedule endpoints.
     async function fetchData(url, type) {
         try {
             const res = await fetch(url.replace("http:", "https:"));
@@ -111,3 +116,5 @@ document.addEventListener("DOMContentLoaded", () => {
     updateListUI();
     fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
 });
+
+
