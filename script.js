@@ -117,4 +117,3 @@ window.removeItem = (index) => {
     fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
 });
 
-
