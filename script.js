@@ -1,119 +1,80 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const grid = document.getElementById("resultsGrid");
-    const modal = document.getElementById('infoModal');
-    const savedList = document.getElementById('saved-list');
-    const saveCount = document.getElementById('save-count');
-    const showBtn = document.getElementById('mode-shows');
-    const actorBtn = document.getElementById('mode-actors');
-    const searchInput = document.getElementById('search-input');
-    const shuffleBtn = document.getElementById('shuffle-btn');
-    const mustWatchToggle = document.getElementById('mustWatchToggle');
-    const modalLink = document.getElementById('modalLink');
-    
+    const grid = document.getElementById("resultsGrid"), modal = document.getElementById("infoModal"), savedList = document.getElementById("saved-list");
     let savedItems = JSON.parse(localStorage.getItem('cinetrack_saves')) || [];
     let lastData = [], lastType = 'shows';
 
-    const updateListUI = () => {
-    const list = document.getElementById('saved-list');
-    list.innerHTML = ""; // Clear existing
+    const updateUI = () => {
+        savedList.innerHTML = "";
+        savedItems.forEach((item, index) => {
+            const li = document.createElement("li");
+            li.className = "flex justify-between bg-slate-800 p-2 rounded text-sm items-center";
+            li.innerHTML = `<span>${item.mustWatch ? '🔥 ' : ''}${item.name}</span><button onclick="removeSaved(${index})" class="text-red-400 font-bold ml-2">X</button>`;
+            savedList.appendChild(li);
+        });
+    };
 
+    window.removeSaved = (index) => {
+        savedItems.splice(index, 1);
+        localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
+        updateUI(); render(lastData);
+    };
 
-    // Add this to make the remove buttons work
-window.removeItem = (index) => {
-    savedItems.splice(index, 1); // Remove from the array
-    localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems)); // Update storage
-    updateListUI(); // Refresh the sidebar
-    render(lastData, lastType); // Refresh the main grid to un-highlight the bookmark button
-};
-
-    
-    savedItems.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.className = "flex justify-between items-center bg-slate-800 p-2 rounded";
-        li.innerHTML = `
-            <span>${item.name}</span>
-            <button onclick="removeItem(${index})" class="text-red-500 hover:text-red-300">X</button>
-        `;
-        list.appendChild(li);
-    });
-};
-
-    const render = (data, type) => {
-        lastData = data; lastType = type;
-        showBtn.className = `flex-1 py-2 rounded-lg text-sm font-bold ${type === 'shows' ? 'bg-indigo-600' : 'bg-slate-700'}`;
-        actorBtn.className = `flex-1 py-2 rounded-lg text-sm font-bold ${type === 'actors' ? 'bg-indigo-600' : 'bg-slate-700'}`;
-
+    const render = (data) => {
         grid.innerHTML = "";
-        data.slice(0, 9).forEach(item => {
+        // FIX: Remove duplicates using a Map
+        const uniqueData = [...new Map(data.map(item => [item.show?.name || item.person?.name, item])).values()];
+        uniqueData.forEach(item => {
             const obj = item.show || item.person;
             if (!obj) return;
-            const savedItem = savedItems.find(i => i.name === obj.name);
+            const isSaved = savedItems.find(i => i.name === obj.name);
             const card = document.createElement("div");
-            card.className = "bg-[#1e293b] p-4 rounded-2xl cursor-pointer hover:bg-slate-700 transition";
-            card.innerHTML = `
-                <img src="${obj.image?.medium || 'https://via.placeholder.com/210x295'}" class="w-full h-64 object-cover rounded-xl mb-4 bg-slate-700">
-                <h3 class="font-bold text-lg">${obj.name}</h3>
-                <button class="bookmark-btn w-full ${savedItem ? 'bg-green-600' : 'bg-slate-900'} py-2 mt-4 rounded-lg text-xs font-bold transition">
-                    ${savedItem ? '✓ Saved' : '+ Bookmark'}
-                </button>
-            `;
+            card.className = "bg-[#1e293b] p-4 rounded-xl cursor-pointer hover:bg-slate-700 transition";
+            card.innerHTML = `<img src="${obj.image?.medium || 'https://via.placeholder.com/210x295'}" class="w-full h-48 object-cover rounded mb-2"><h3 class="font-bold">${obj.name}</h3><button class="bookmark-btn w-full ${isSaved ? 'bg-green-600' : 'bg-slate-900'} py-1 mt-2 rounded text-sm">${isSaved ? '✓ Saved' : '+ Bookmark'}</button>`;
             
-            card.onclick = (e) => {
-                if (e.target.classList.contains('bookmark-btn')) return;
+            card.onclick = () => {
                 document.getElementById('modalTitle').innerText = obj.name;
-                document.getElementById('modalSummary').innerHTML = obj.summary || "No description available.";
-                modalLink.href = obj.url || "#";
-                
-                const currentSavedItem = savedItems.find(i => i.name === obj.name);
-                mustWatchToggle.style.display = type === 'shows' ? 'block' : 'none';
-                mustWatchToggle.innerText = currentSavedItem?.mustWatch ? 'Remove from Must Watch' : 'Mark as Must Watch';
-                
-                mustWatchToggle.onclick = () => {
-                    const itemIndex = savedItems.findIndex(i => i.name === obj.name);
-                    if (itemIndex === -1) {
-                        savedItems.push({ name: obj.name, mustWatch: true, url: obj.url });
-                    } else {
-                        savedItems[itemIndex].mustWatch = !savedItems[itemIndex].mustWatch;
-                    }
-                    localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
-                    updateListUI();
-                    modal.classList.add('hidden');
-                    render(lastData, lastType);
-                };
+                document.getElementById('modalSummary').innerHTML = obj.summary || "No description.";
+                document.getElementById('modalLink').href = obj.url || "#";
                 modal.classList.remove('hidden');
             };
 
             card.querySelector('.bookmark-btn').onclick = (e) => {
                 e.stopPropagation();
-                if (!savedItem) {
-                    savedItems.push({ name: obj.name, mustWatch: false, url: obj.url });
-                    localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
-                    updateListUI();
-                    render(lastData, lastType);
-                }
+                const idx = savedItems.findIndex(i => i.name === obj.name);
+                if (idx === -1) savedItems.push({ name: obj.name, mustWatch: false, url: obj.url });
+                else savedItems.splice(idx, 1);
+                localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
+                updateUI(); render(uniqueData);
             };
             grid.appendChild(card);
         });
     };
 
-    // Note: API returns randomized schedule data. Repetition may occur due to limited US schedule endpoints.
+    document.getElementById('mustWatchToggle').onclick = () => {
+        const name = document.getElementById('modalTitle').innerText;
+        const url = document.getElementById('modalLink').href;
+        let item = savedItems.find(i => i.name === name);
+        if (item) item.mustWatch = !item.mustWatch;
+        else savedItems.push({ name: name, mustWatch: true, url: url });
+        localStorage.setItem('cinetrack_saves', JSON.stringify(savedItems));
+        updateUI(); render(lastData); modal.classList.add('hidden');
+    };
+
     async function fetchData(url, type) {
-        try {
-            const res = await fetch(url.replace("http:", "https:"));
-            let data = await res.json();
-            if (type === 'shows' && url.includes('schedule')) data.sort(() => Math.random() - 0.5);
-            render(data, type);
-        } catch (e) { console.error(e); }
+        const res = await fetch(url.replace("http:", "https:"));
+        let data = await res.json();
+        data.sort(() => Math.random() - 0.5);
+        lastData = data; lastType = type;
+        document.getElementById('mode-shows').className = `flex-1 py-2 rounded ${type === 'shows' ? 'bg-indigo-600' : 'bg-slate-700'}`;
+        document.getElementById('mode-actors').className = `flex-1 py-2 rounded ${type === 'actors' ? 'bg-indigo-600' : 'bg-slate-700'}`;
+        render(data);
     }
 
     document.getElementById('theme-toggle').onclick = () => document.body.classList.toggle('light-mode');
     document.getElementById('closeModal').onclick = () => modal.classList.add('hidden');
-    searchInput.onkeypress = (e) => { if (e.key === 'Enter') fetchData(`https://api.tvmaze.com/search/shows?q=${e.target.value}`, 'shows'); };
-    shuffleBtn.onclick = () => fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
-    showBtn.onclick = () => fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
-    actorBtn.onclick = () => fetchData("https://api.tvmaze.com/search/people?q=a", 'actors');
-    
-    updateListUI();
-    fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
-});
+    document.getElementById('mode-shows').onclick = () => fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
+    document.getElementById('mode-actors').onclick = () => fetchData("https://api.tvmaze.com/search/people?q=a", 'actors');
+    document.getElementById('shuffle-btn').onclick = () => fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
 
+    updateUI(); fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
+});
