@@ -25,3 +25,10 @@ This project was developed as part of a technical assignment focusing on:
 
 "Known Limitations."
 The TVMaze schedule API returns a limited set of results. In some scenarios, data may appear repetitive upon repeated reloads due to API caching behavior. This was observed during testing and does not impact core functionality.
+
+
+feat: implement core functionality and UI for CineTrack
+
+- Added Must Watch toggle, persistent saved list, and theme switcher
+- Integrated unique data filtering and randomization
+- Fixed event handling and modal interactions
