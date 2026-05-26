@@ -75,6 +75,29 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('mode-shows').onclick = () => fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
     document.getElementById('mode-actors').onclick = () => fetchData("https://api.tvmaze.com/search/people?q=a", 'actors');
     document.getElementById('shuffle-btn').onclick = () => fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
-
+    
     updateUI(); fetchData("https://api.tvmaze.com/schedule?country=US", 'shows');
+
+    // 1. Select your elements
+const searchInput = document.getElementById('search-input');
+const showsBtn = document.getElementById('mode-shows');
+const actorsBtn = document.getElementById('mode-actors');
+let currentMode = 'shows';
+
+// 2. The Logic to switch UI
+function setMode(mode) {
+    currentMode = mode;
+    // Update placeholder
+    searchInput.placeholder = mode === 'shows' ? "Search shows..." : "Search actors...";
+    
+    // Update button colors (Indigo = active, Slate = inactive)
+    showsBtn.className = mode === 'shows' ? 'flex-1 py-2 rounded bg-indigo-600 font-bold' : 'flex-1 py-2 rounded bg-slate-700 font-bold';
+    actorsBtn.className = mode === 'actors' ? 'flex-1 py-2 rounded bg-indigo-600 font-bold' : 'flex-1 py-2 rounded bg-slate-700 font-bold';
+}
+
+// 3. Add the click events
+showsBtn.addEventListener('click', () => setMode('shows'));
+actorsBtn.addEventListener('click', () => setMode('actors'));
 });
+
+
