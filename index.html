@@ -4,48 +4,42 @@
     <meta charset="UTF-8">
     <title>CineTrack</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body.light-mode { background-color: #f1f5f9; color: #1e293b; }
-        body.light-mode .bg-slate-900 { background-color: #e2e8f0; }
-        body.light-mode .bg-[#1e293b] { background-color: #ffffff; }
-    </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen p-6">
-    <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-8">
-            <h1 class="text-4xl font-black italic tracking-tighter text-white">CINETRACK</h1>
-            <button id="theme-toggle" class="bg-slate-700 px-4 py-2 rounded-lg font-bold">Toggle Theme</button>
-        </header>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<body class="bg-slate-900 text-white min-h-screen p-4 md:p-6">
+    <div class="container mx-auto">
+        <div class="flex justify-between items-center md:hidden mb-6">
+            <h1 class="text-2xl font-bold text-indigo-400">CINETRACK</h1>
+            <button id="mobile-menu-btn" class="text-2xl">📁</button>
+        </div>
 
-            
-            <aside class="space-y-6">
-            <input id="search-input" type="text" placeholder="Search shows..." 
-                 class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 focus:border-indigo-500 outline-none">
-                <div class="flex gap-2">
-                    <button id="mode-shows" class="flex-1 py-2 rounded bg-indigo-600 font-bold">Shows</button>
-                    <button id="mode-actors" class="flex-1 py-2 rounded bg-slate-700 font-bold">Actors</button>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div id="sidebar" class="hidden md:block fixed inset-0 bg-slate-900 p-6 z-50 md:static md:p-0">
+                <button id="close-menu-btn" class="md:hidden text-right w-full text-2xl mb-4">✕</button>
+                <h1 class="hidden md:block text-3xl font-bold mb-6 text-indigo-400">CINETRACK</h1>
+                
+                <input type="text" id="main-search" placeholder="Search Shows..." class="w-full p-2 rounded bg-slate-800 border border-slate-700 mb-4">
+                
+                <div class="flex gap-2 mb-4">
+                    <button id="show-tab" class="flex-1 py-2 rounded font-bold bg-indigo-600">Shows</button>
+                    <button id="actor-tab" class="flex-1 py-2 rounded font-bold bg-slate-700">Actors</button>
                 </div>
-                <button id="shuffle-btn" class="w-full bg-slate-800 py-2 rounded">Shuffle Feed</button>
-                <div class="border-t border-slate-700 pt-4">
-                    <h3 class="font-bold mb-2">SAVED LIST</h3>
-                    <ul id="saved-list" class="space-y-2"></ul>
-                </div>
-            </aside>
-            <main class="md:col-span-3">
-                <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </main>
+                
+                <button id="shuffle-btn" class="w-full py-2 mb-8 rounded font-bold border-2 border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white transition-all">🔀 Shuffle</button>
+
+                <h2 class="font-bold text-slate-400 uppercase text-xs mb-2">Saved List</h2>
+                <ul id="saved-list" class="space-y-1"></ul>
+            </div>
+
+            <div id="grid" class="col-span-1 md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"></div>
         </div>
     </div>
-    <div id="infoModal" class="fixed inset-0 bg-black/80 flex items-center justify-center hidden p-4">
-        <div class="bg-slate-900 p-6 rounded-xl w-full max-w-md">
-            <h2 id="modalTitle" class="text-2xl font-bold mb-2"></h2>
-            <p id="modalSummary" class="text-slate-300 mb-6 text-sm"></p>
-            <div class="flex flex-col gap-2">
-                <button id="mustWatchToggle" class="bg-orange-600 py-2 rounded font-bold">Must Watch</button>
-                <a id="modalLink" href="#" target="_blank" class="block bg-indigo-600 text-center py-2 rounded">View Details</a>
-                <button id="closeModal" class="bg-slate-700 py-2 rounded">Close</button>
-            </div>
+
+    <div id="infoModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
+        <div class="bg-slate-800 p-6 rounded-xl w-80 space-y-3">
+            <h2 id="modalTitle" class="text-xl font-bold"></h2>
+            <button id="mustWatchToggle" class="w-full bg-orange-600 py-2 rounded font-bold">Must Watch</button>
+            <button id="viewDetailsBtn" class="w-full bg-indigo-600 py-2 rounded font-bold">View Details</button>
+            <button id="closeModal" class="w-full bg-slate-600 py-2 rounded font-bold">Close</button>
         </div>
     </div>
     <script src="script.js"></script>
