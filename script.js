@@ -149,6 +149,9 @@ function renderGrid(data) {
         card.className = "bg-slate-800 p-4 rounded-xl cursor-pointer hover:bg-slate-700";
         card.innerHTML = `<img src="${obj.image?.medium || 'https://placehold.co/210x295'}" class="w-full rounded-lg">
                           <h3 class="mt-3 font-bold truncate">${obj.name}</h3>
+                          <button onclick="fetchShowDetails(${obj.id})" class="w-full mt-2 py-1 rounded bg-slate-600 text-white hover:bg-slate-500">
+                              View Details
+                          </button>
                           <button class="btn-bmk w-full mt-2 py-1 rounded ${isSaved ? 'bg-green-600' : 'bg-indigo-600'}">
                               ${isSaved ? 'Bookmarked' : 'Bookmark'}</button>`;
         
@@ -267,3 +270,36 @@ scheduleTab.onclick = () => {
     scheduleTab.className = "flex-1 py-2 rounded font-bold bg-indigo-600";
     fetchSchedule(); 
 };
+
+async function fetchShowDetails(showId) {
+    // 1. Show a loading state in the grid
+    const grid = document.getElementById("grid");
+    grid.innerHTML = '<p class="col-span-full">Loading details...</p>';
+
+    try {
+        // 2. Fetch the specific show data from TVMaze
+        const response = await fetch(`https://api.tvmaze.com/shows/${showId}`);
+        const details = await response.json();
+
+        // 3. Render the details locally in the grid
+       grid.innerHTML = `
+    <div class="col-span-full bg-slate-800 p-6 rounded shadow text-white">
+        <button onclick="location.reload()" class="mb-4 bg-indigo-600 text-white px-4 py-2 rounded">
+            ← Back to Search
+        </button>
+        <h2 class="text-3xl font-bold mb-4">${details.name}</h2>
+        <div class="flex flex-col md:flex-row">
+            <img src="${details.image ? details.image.medium : 'https://placehold.co/210x295'}" class="mr-6 mb-4 w-48 rounded">
+            <div>
+                <h3 class="font-bold text-xl">Summary:</h3>
+                <div class="mt-2 text-gray-300">${details.summary}</div>
+            </div>
+        </div>
+    </div>
+`;
+
+    } catch (error) {
+        console.error("Error loading details:", error);
+        grid.innerHTML = '<p>Error loading details. Please try again.</p>';
+    }
+}
